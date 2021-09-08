@@ -3,7 +3,7 @@ title: "Social Data Science"
 subtitle: "Data structures"
 author: Dr. Thomas Davidson
 institute: Rutgers University
-date: September 7, 2021
+date: September 8, 2021
 output:
     beamer_presentation:
       theme: "Szeged"
