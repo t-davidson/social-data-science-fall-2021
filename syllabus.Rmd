@@ -84,12 +84,6 @@ I will also be making additional accommodations due to the COVID-19 pandemic. If
 
 ## Week 1, 9/1 (Wednesday only)
 ### Introduction to social data science
-<!--
-- Learning objectives:
-    - R and RMarkdown basics
-    - The Github workflow
-    - The command line interface?
--->
 
 *Readings*
 
@@ -99,31 +93,18 @@ I will also be making additional accommodations due to the COVID-19 pandemic. If
 
 ## Week 2, 9/8 (Wednesday only)
 ### Data structures in R
-<!--
-- Learning objectives:
-    - Understand different types of data structure (list, set, dictionary, matrix)
-    - Introduction to the tidyverse
--->
     
 *Readings*
 
-- *R4DS*: C2-5 
+- *R4DS*: C2,4, skim 20.
 
 ## Week 3, 9/13 & 9/15
 ### Programming fundamentals
-<!--
-- Learning objectives:
-    - Boolean logic
-    - Loops
-    - Functions
-    - Classes
-    - Documentation
--->
 
 *Readings*
 
-- *R4DS*: C9-12
-- *R4DS*: C17-21
+- Monday, *R4DS*: C17-19, 21.
+- Wednesday, *R4DS*: C5, 9, 10, 13.
     
 ## *Assignment 1 released: Using R for Data Science.*
     
@@ -132,15 +113,17 @@ I will also be making additional accommodations due to the COVID-19 pandemic. If
 
 *Readings*
 
-- *R4DS*: C14 ("Strings with stringr"), 15 ("Dates and Times with lubridate")
-- *Bit by Bit*, C2
+- Monday, *Bit by Bit*, C2
+- Wednesday, *R4DS*: C3
+
     
 ## Week 5, 9/27 & 9/29
 ### Data Collection II: Scraping data from the web
 
 *Readings*
 
-- *Bit by Bit*, C6
+- Monday, *Bit by Bit*, C6
+- Wednesday, *R4DS*: C14, 16
 
 *Recommended*
 

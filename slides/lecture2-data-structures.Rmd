@@ -1,0 +1,315 @@
+---
+title: "Social Data Science" 
+subtitle: "Data structures"
+author: Dr. Thomas Davidson
+institute: Rutgers University
+date: September 7, 2021
+output:
+    beamer_presentation:
+      theme: "Szeged"
+      colortheme: "beaver"
+      fonttheme: "structurebold"
+      toc: false
+      incremental: false
+header-includes:
+  - \usepackage{multicol}
+  - \usepackage{hyperref}
+  - \usepackage{caption}
+  - \captionsetup[figure]{font=scriptsize}
+  - \captionsetup[figure]{labelformat=empty}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(dev = 'pdf')
+library("knitr")
+library("formatR")
+
+opts_chunk$set(tidy.opts=list(width.cutoff=80),tidy=TRUE)
+opts_chunk$set(tidy = FALSE)
+
+knitr::knit_hooks$set(mysize = function(before, options, envir) {
+  if (before) 
+    return(options$size)
+})
+```
+
+
+# Plan
+- Object-oriented programming
+- Basic types
+- Vectors
+- Lists
+- Matrices
+- Data frames and tibbles
+- A note on style
+
+# Object-oriented programming
+- A paradigm of computer programming
+    - We create *objects* of different *classes* such as numbers, strings, and data frames
+    - These objects have *attributes*, properties such as data
+        - e.g. The numeric object we call **`A`** has an attribute called `value` equal to **`1`**
+    - Objects are associated with *methods* that allow us to manipulate them
+        - e.g. a numeric object might have a method called `add`, such that **`A + A`** will return **`2`**.
+
+# Basic types
+There are four basic types we will be using throughout the class. We use the `<-` operator to assign an object to a name.
+```{r, echo=TRUE, , mysize=TRUE, size='\\footnotesize' }
+# Character (also known as "strings")
+name <- "Gary"
+# Numeric ("float" in Python)
+weight <- 13.2
+# Integer ("int" for short)
+age <- 4L
+# Logical
+human <- FALSE
+```
+\tiny The other two are called `complex` and `raw`. See documentation: https://cran.r-project.org/doc/manuals/R-lang.html
+
+# Basic types
+There are a few useful commands for inspecting objects.
+```{r, echo=TRUE, , mysize=TRUE, size='\\footnotesize' }
+print(name) # Prints value in console
+class(name) # Shows class of object
+typeof(name) # Shows type of object, not always equal to class
+```
+
+# Basic types
+```{r, echo=TRUE, , mysize=TRUE, size='\\footnotesize' }
+print(weight) # Prints value in console
+class(weight) # Shows class of object
+typeof(weight) # Shows type of object, not always equal to class
+```
+
+# Basic types
+We can also use the `==` expression to verify the value of an object. We will discuss this in more detail next lecture.
+```{r, echo=TRUE, , mysize=TRUE, size='\\footnotesize' }
+name == "Gary" 
+age == 3L
+age >= 3L # is greater than
+age != 3L # is not
+```
+
+# Vectors
+A vector is a collection of elements of the *same* class
+```{r, echo=TRUE, , mysize=TRUE, size='\\footnotesize' }
+# We can define an empty vector with N elements of a class
+x <- logical(5)
+print(x)
+y <- numeric(5)
+print(y)
+z <- character(5)
+print(z)
+```
+
+# Vectors
+Let's take a closer look at numeric vectors. We can use the "combine" function `c()` to concatenate values into a vectr.
+```{r, echo=TRUE, , mysize=TRUE, size='\\footnotesize' }
+v1 <- c(1,2,3,4,5)
+v2 <- c(1,1,1,1,1)
+class(v1) # check the class of this vector
+v1 + v2 # addition
+v1 * v2 # multiplication
+v1 - v2 # subtraction
+sum(v1) # sum over v1
+```
+Note how the different methods return different outputs. The arithmetic operations return a new vector while `sum` returns a numeric value.
+
+# Vectors
+What happens if we try to combine objects of different types using combine?
+```{r, echo=TRUE, , mysize=TRUE, size='\\footnotesize' }
+t <- c("a", 1, TRUE)
+typeof(t)
+t
+```
+
+# Vectors
+There are lots of commands for generating special types of numeric vectors. For example,
+```{r, echo=TRUE, , mysize=TRUE, size='\\footnotesize' }
+N <- 10 # Value to be used in arguments below
+
+seq(N) # generates a sequence from 1 to N
+rev(seq(N)) # reverses order
+rnorm(N) # samples N times from a normal distribution
+rbinom(N,1,0.5) # N observations of a single trial with a 0.5 probability of success
+```
+
+# Vectors
+We can use the help `?` command to find information about each of these commands.
+```{r, echo=TRUE, , mysize=TRUE, size='\\footnotesize' }
+?rnorm
+```
+
+# Vectors
+We can use the `index` to access the specific elements of a vector. R uses square brackets for such indexing.
+```{r, echo=TRUE, , mysize=TRUE, size='\\footnotesize' }
+x <- rnorm(N)
+print(x)
+print(x[1]) # R indexing starts at 1; Python and some others start at 0
+x[1] <- 9 # We can also use indexing to modify elements
+print(x[1])
+```
+
+# Vectors
+The `head` and `tail` commands are useful when we're working with larger objects.
+```{r, echo=TRUE, , mysize=TRUE, size='\\footnotesize' }
+x <- rnorm(10000)
+length(x)
+head(x)
+tail(x)
+head(x, n=20)
+```
+
+# Vectors
+Retrieve the final element from `x` using indexing.
+```{r, echo=TRUE, , mysize=TRUE, size='\\footnotesize' }
+
+```
+
+
+# Vectors
+Vectors can also contain `null` elements to indicate missing values, represented by `NA` logical value.
+```{r, echo=TRUE, , mysize=TRUE, size='\\footnotesize' }
+x <- c(1,2,3,4,NA)
+x
+is.na(x) # The is.na function indicates whether each value is missing.
+```
+
+# Lists
+A list is an object that can contain different types of elements, including basic types and vectors.
+```{r, echo=TRUE, , mysize=TRUE, size='\\footnotesize' }
+v1.list <- list(v1) # We can easily convert the vector v1 into a list.
+```
+
+# Lists
+Lists have a more complex form of indexing.
+```{r, echo=TRUE, , mysize=TRUE, size='\\footnotesize' }
+v1.list[1] # The entire vector is considered the first element of the list
+v1.list[[1]] # We can access this element by using double brackets
+v1.list[[1]][1] # Followed by single brackets to access a specific element
+v1.list[1][1] # Otherwise we get the entire vector
+```
+
+# Lists
+We can easily combine multiple vectors into a list.
+```{r, echo=TRUE, , mysize=TRUE, size='\\footnotesize' }
+v.list <- list(v1,v2) # We could store both vectors in a list
+print(v.list)
+v.list[[2]][4] # We can use double brackets to get element 4 of list 1
+```
+
+# Lists
+We can make indexing easier if we start with an empty list and then add elements using a named index with the `$` operator.
+```{r, echo=TRUE, , mysize=TRUE, size='\\footnotesize' }
+v <- list() # initialize empty list
+v$v1 <- v1 # the $ sign allows for named indexing
+v$v2 <- v2
+print(v)
+```
+
+# Lists
+Combine `$` and bracket indexing to get the fourth element of `v`.
+```{r, echo=TRUE, , mysize=TRUE, size='\\footnotesize' }
+
+```
+
+
+
+# Lists
+A list could contain a mix of different types. This type of structure forms the backbone of the dataframes we will be using throughout the class.
+```{r, echo=TRUE, , mysize=TRUE, size='\\footnotesize' }
+cats <- list(c("Gary", "Tabitha"), c(4,1))
+print(cats)
+```
+\tiny See  \href{https://r4ds.had.co.nz/vectors.html}{Chapter 20} of R4DS for more on lists and vectors.
+
+# Matrices
+A matrix is a two-dimensional data structure. Like vectors, matrices hold objects of a single type. Here we're defining a matrix using two arguments, the number of rows and columns.
+```{r, echo=TRUE, , mysize=TRUE, size='\\footnotesize' }
+matrix(nrow=5,ncol=5) # Here there is no content so the matrix is empty
+```
+
+# Matrices
+A matrix is a two-dimensional data structure.
+```{r, echo=TRUE, , mysize=TRUE, size='\\footnotesize' }
+M <- matrix(0L, nrow=5, ncol=5) # 5x5 matrix of zeros
+M
+```
+
+# Matrices
+We can create a matrix by combining vectors using `cbind` oand `rbind`.
+```{r, echo=TRUE, , mysize=TRUE, size='\\footnotesize' }
+M1 <- cbind(v1,v2) # Treat vectors a columns
+print(M1)
+M2 <- rbind(v1, v2) # Vectors as rows
+print(M2)
+```
+
+# Matrices
+We can get particular values using two-dimensional indexing.
+```{r, echo=TRUE, , mysize=TRUE, size='\\footnotesize' }
+dim(M1) # Shows the dimensions of the matrix
+i <- 1 # row index
+j <- 2 # column index
+M1[i,j] # Returns element i,j
+M1[i,] # Returns row i
+M1[,j] # Returns column i
+```
+
+# Matrices
+Like lists, we can  also name rows and columns to help make indexing easier. The `colnames` and `rownames` functions show the names of each column and row.
+```{r, echo=TRUE, , mysize=TRUE, size='\\footnotesize' }
+colnames(M1)
+rownames(M1)
+```
+# Matrices
+We can use these functions to assign new names.
+```{r, echo=TRUE, , mysize=TRUE, size='\\footnotesize' }
+colnames(M1) <- c("X", "Y")
+rownames(M1) <- seq(1, nrow(M1))
+print(M1)
+```
+
+# Data frames
+Like its component vectors, a matrix contains data of the same type. If we have a mix of data types we generally want to use a ``data.frame``. Note how the printed version shows the type of each column.
+```{r, echo=TRUE, , mysize=TRUE, size='\\footnotesize' }
+df <- as.data.frame(M1)
+class(df)
+df$Z <- c("a","b", "c", "d", "e")
+print(df)
+```
+
+# Data frames
+We can use indexing in the same way as lists to extract elements.
+```{r, echo=TRUE, , mysize=TRUE, size='\\footnotesize' }
+data(iris) # The `data` function loads a built in dataset
+head(iris)
+iris$Sepal.Length[1] # Explicitly call column name
+iris[[1]][1] # reference column using index
+```
+
+# Tibbles
+A `tibble` is the `tidyverse` take on a data.frame. It is more "opinionated," which helps to maintain the integrity of your data. It also has some other updated features. We can easily convert any `data.frame` into a `tibble`.
+```{r, echo=TRUE, , mysize=TRUE, size='\\footnotesize' }
+library(tidyverse) # the library is required to use the as_tibble function
+iris.t <- as_tibble(iris) # convert to tibble
+class(iris.t)
+```
+# Tibbles
+Tibbles only show the first ten rows when printing (both look the same in RMarkdown, so we have to use the console to compare.)
+```{r, echo=TRUE, , mysize=TRUE, size='\\footnotesize' }
+print(iris)
+print(iris.t)
+```
+# Tibbles
+Tibbles also tend to provide more warnings when potential issues arise, so they should be less prone to errors than dataframes.
+```{r, echo=TRUE, , mysize=TRUE, size='\\footnotesize', warning=T }
+iris$year
+iris.t$year
+```
+  
+# Questions?
+
+

@@ -1,0 +1,540 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+  10pt,
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage[]{mathpazo}
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdfauthor={Dr.~Thomas Davidson},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\linespread{1.05}
+\ifluatex
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+
+\title{Social Data Science\\
+Rutgers University\\
+~\\
+\hspace*{0.333em}Syllabus}
+\author{Dr.~Thomas Davidson}
+\date{Fall 2021}
+
+\begin{document}
+\maketitle
+
+\hypertarget{contact-and-logistics}{%
+\section{CONTACT AND LOGISTICS}\label{contact-and-logistics}}
+
+E-mail: \texttt{thomas.davidson@rutgers.edu} or Canvas message.
+
+Website:
+\texttt{https://github.com/t-davidson/social-data-science-fall-2021} and
+Canvas.
+
+Class meetings: MW 3-4:20 p.m, Loree Classroom Building - Room 020.
+
+Office hours: W 4:30-5:30 p.m, Davison Hall - Room 109 or by
+appointment.
+
+\hypertarget{course-description}{%
+\section{COURSE DESCRIPTION}\label{course-description}}
+
+This course introduces students to the growing field of computational
+social science. Students will learn to collect and critically analyze
+social data using a range of techniques including natural language
+processing, machine learning, and agent-based modeling. We will discuss
+how these techniques are used by social scientists and consider the
+ethical implications of big data and artificial intelligence. Students
+will complete homework assignments involving coding in the R programming
+language to analyze several different datasets and will complete a group
+project to create a web-based application for data analysis and
+visualization.
+
+\hypertarget{prerequisites}{%
+\section{PREREQUISITES}\label{prerequisites}}
+
+\emph{Data 101} or equivalent. Enrolled students \emph{must} have
+experience writing basic programs in a general purpose programming
+language, e.g.~R, Python, Java, C.
+
+We will review the fundamentals for programming and data science in R in
+weeks 1-3.
+
+\hypertarget{assessment}{%
+\section{ASSESSMENT}\label{assessment}}
+
+\begin{itemize}
+\tightlist
+\item
+  10\% Class participation
+\item
+  60\% Homework assignments (3 x 20\%)
+\item
+  30\% Group project (R Shiny app and write-up)
+\end{itemize}
+
+\hypertarget{readings}{%
+\section{READINGS}\label{readings}}
+
+Most of the readings will consist of chapters from the textbooks listed
+below. These readings are intended to build familiarity with key
+concepts and programming skills. Some weeks there will be an additional
+reading to highlight how data science techniques are used in empirical
+social scientific research.
+
+\hypertarget{textbooks}{%
+\subsection{Textbooks}\label{textbooks}}
+
+\emph{* indicates a required text. All required texts and useful
+references are available for free online on the listed websites.}
+
+\begin{itemize}
+\tightlist
+\item
+  *Matthew Salganik. 2017. \emph{Bit by Bit}. Princeton University
+  Press. \url{https://www.bitbybitbook.com/en/1st-ed/preface/}
+\item
+  *Wickham, Hadley, and Garrett Grolemund. 2016. \emph{R for Data
+  Science: Import, Tidy, Transform, Visualize, and Model Data}.
+  (\emph{R4DS}). O'Reilly Media, Inc. \url{https://r4ds.had.co.nz/}
+\item
+  *Silge, Julia, and David Robinson. 2017. \emph{Text Mining with R: A
+  Tidy Approach.} O'Reilly Media.
+  \url{https://www.tidytextmining.com/dtm.html}.
+\item
+  Healy, Kieran. 2018. \emph{Data Visualization: A Practical
+  Introduction}. Princeton University Press. \url{https://socviz.co/}
+\end{itemize}
+
+\hypertarget{resources}{%
+\section{RESOURCES}\label{resources}}
+
+The course will be organized using two different tools, Github and
+Canvas. Canvas will be used for class communication, short quizzes, and
+for scheduling. Github Classroom will be used for the submission of
+assignments.
+
+\hypertarget{course-policies}{%
+\section{COURSE POLICIES}\label{course-policies}}
+
+The Rutgers Sociology Department strives to create an environment that
+supports and affirms diversity in all manifestations, including race,
+ethnicity, gender, sexual orientation, religion, age, social class,
+disability status, region/country of origin, and political orientation.
+This class will be a space for tolerance, respect, and mutual dialogue.
+Students must abide by the Code of Student Conduct at all times,
+including during lectures and in participation online.
+
+All students must abide by the university's Academic Integrity Policy.
+Violations of academic integrity will result in disciplinary action.
+
+In accordance with University policy, if you have a documented
+disability and require accommodations to obtain equal access in this
+course, please contact me during the first week of classes. Students
+with disabilities must be registered with the Office of Student
+Disability Services and must provide verification of their eligibility
+for such accommodations.
+
+I will also be making additional accommodations due to the COVID-19
+pandemic. If you or your family are affected in any way that impedes
+your ability to participate in this course, please contact me as soon as
+you can so that we can make necessary arrangements.
+
+\hypertarget{course-outline}{%
+\section{COURSE OUTLINE}\label{course-outline}}
+
+\textbf{\emph{This outline is tentative and subject to change.}}
+
+\hypertarget{week-1-91-wednesday-only}{%
+\subsection{Week 1, 9/1 (Wednesday
+only)}\label{week-1-91-wednesday-only}}
+
+\hypertarget{introduction-to-social-data-science}{%
+\subsubsection{Introduction to social data
+science}\label{introduction-to-social-data-science}}
+
+\emph{Readings}
+
+\begin{itemize}
+\tightlist
+\item
+  \emph{Bit by Bit}, C1
+\item
+  \emph{R4DS}: C1 \& 27 {[}Note: Chapter numbers correspond to the
+  online book; physical book numbers are different{]}
+\end{itemize}
+
+\hypertarget{week-2-98-wednesday-only}{%
+\subsection{Week 2, 9/8 (Wednesday
+only)}\label{week-2-98-wednesday-only}}
+
+\hypertarget{data-structures-in-r}{%
+\subsubsection{Data structures in R}\label{data-structures-in-r}}
+
+\emph{Readings}
+
+\begin{itemize}
+\tightlist
+\item
+  \emph{R4DS}: C2,4, skim 20.
+\end{itemize}
+
+\hypertarget{week-3-913-915}{%
+\subsection{Week 3, 9/13 \& 9/15}\label{week-3-913-915}}
+
+\hypertarget{programming-fundamentals}{%
+\subsubsection{Programming
+fundamentals}\label{programming-fundamentals}}
+
+\emph{Readings}
+
+\begin{itemize}
+\tightlist
+\item
+  Monday, \emph{R4DS}: C17-19, 21.
+\item
+  Wednesday, \emph{R4DS}: C5, 9, 10, 13.
+\end{itemize}
+
+\hypertarget{assignment-1-released-using-r-for-data-science.}{%
+\subsection{\texorpdfstring{\emph{Assignment 1 released: Using R for
+Data
+Science.}}{Assignment 1 released: Using R for Data Science.}}\label{assignment-1-released-using-r-for-data-science.}}
+
+\hypertarget{week-4-920-922}{%
+\subsection{Week 4, 9/20 \& 9/22}\label{week-4-920-922}}
+
+\hypertarget{data-collection-i-collecting-data-using-application-programming-interfaces}{%
+\subsubsection{Data Collection I: Collecting data using Application
+Programming
+Interfaces}\label{data-collection-i-collecting-data-using-application-programming-interfaces}}
+
+\emph{Readings}
+
+\begin{itemize}
+\tightlist
+\item
+  Monday, \emph{Bit by Bit}, C2
+\item
+  Wednesday, \emph{R4DS}: C3
+\end{itemize}
+
+\hypertarget{week-5-927-929}{%
+\subsection{Week 5, 9/27 \& 9/29}\label{week-5-927-929}}
+
+\hypertarget{data-collection-ii-scraping-data-from-the-web}{%
+\subsubsection{Data Collection II: Scraping data from the
+web}\label{data-collection-ii-scraping-data-from-the-web}}
+
+\emph{Readings}
+
+\begin{itemize}
+\tightlist
+\item
+  Monday, \emph{Bit by Bit}, C6
+\item
+  Wednesday, \emph{R4DS}: C14, 16
+\end{itemize}
+
+\emph{Recommended}
+
+\begin{itemize}
+\tightlist
+\item
+  Fiesler, Casey, Nate Beard, and Brian C Keegan. 2020. ``No Robots,
+  Spiders, or Scrapers: Legal and Ethical Regulation of Data Collection
+  Methods in Social Media Terms of Service.'' In \emph{Proceedings of
+  the Fourteenth International AAAI Conference on Web and Social Media},
+  187--96.
+\end{itemize}
+
+\hypertarget{week-6-104-106}{%
+\subsection{Week 6, 10/4 \& 10/6}\label{week-6-104-106}}
+
+\hypertarget{data-collection-iii-online-experiments-and-surveys}{%
+\subsubsection{Data Collection III: Online experiments and
+surveys}\label{data-collection-iii-online-experiments-and-surveys}}
+
+\hypertarget{assignment-2-collecting-and-storing-data-released.}{%
+\subsection{\texorpdfstring{\emph{Assignment 2: Collecting and storing
+data
+released.}}{Assignment 2: Collecting and storing data released.}}\label{assignment-2-collecting-and-storing-data-released.}}
+
+\emph{Readings}
+
+\begin{itemize}
+\tightlist
+\item
+  R Shiny tutorial: \url{https://shiny.rstudio.com/tutorial/}
+\item
+  \emph{Bit by Bit}, C3-5
+\end{itemize}
+
+\hypertarget{week-7-1011-1012}{%
+\subsection{Week 7, 10/11 \& 10/12}\label{week-7-1011-1012}}
+
+\hypertarget{natural-language-processing-i-the-vector-space-model}{%
+\subsubsection{Natural Language Processing I: The vector-space
+model}\label{natural-language-processing-i-the-vector-space-model}}
+
+\emph{Readings}
+
+\begin{itemize}
+\tightlist
+\item
+  \emph{Text Mining with R}, C1 \& 3
+\end{itemize}
+
+\emph{Recommended}
+
+\begin{itemize}
+\tightlist
+\item
+  Evans, James, and Pedro Aceves. 2016. ``Machine Translation: Mining
+  Text for Social Theory.'' \emph{Annual Review of Sociology} 42 (1):
+  21--50. \url{https://doi.org/10.1146/annurev-soc-081715-074206}.
+\end{itemize}
+
+\hypertarget{week-8-1018-1020}{%
+\subsection{Week 8, 10/18 \& 10/20}\label{week-8-1018-1020}}
+
+\hypertarget{natural-language-processing-ii-word-embeddings}{%
+\subsubsection{Natural Language Processing II: Word
+embeddings}\label{natural-language-processing-ii-word-embeddings}}
+
+\emph{Readings}
+
+\begin{itemize}
+\tightlist
+\item
+  \emph{Text Mining with R}: C5.
+\item
+  Hvitfeldt, Emil and Julia Silge. 2020 \emph{Supervised Machine
+  Learning for Text Analysis in R.} Chapter 5:
+  \url{https://smltar.com/embeddings.html}.
+\end{itemize}
+
+\emph{Recommended}
+
+\begin{itemize}
+\tightlist
+\item
+  Kozlowski, Austin, Matt Taddy, and James Evans. 2019. ``The Geometry
+  of Culture: Analyzing the Meanings of Class through Word Embeddings.''
+  \emph{American Sociological Review}, September, 000312241987713.
+  \url{https://doi.org/10.1177/0003122419877135}.
+\end{itemize}
+
+\hypertarget{week-9-1025-1027}{%
+\subsection{Week 9, 10/25 \& 10/27}\label{week-9-1025-1027}}
+
+\hypertarget{natural-language-processing-iii-topic-models}{%
+\subsubsection{Natural Language Processing III: Topic
+models}\label{natural-language-processing-iii-topic-models}}
+
+\hypertarget{assignment-3-natural-language-processing-released.}{%
+\subsection{\texorpdfstring{\emph{Assignment 3: Natural language
+processing
+released.}}{Assignment 3: Natural language processing released.}}\label{assignment-3-natural-language-processing-released.}}
+
+\emph{Readings}
+
+\begin{itemize}
+\tightlist
+\item
+  \emph{Text Mining with R}: C6.
+\item
+  Mohr, John, and Petko Bogdanov. 2013. ``Introduction---Topic Models:
+  What They Are and Why They Matter.'' \emph{Poetics} 41 (6): 545--69.
+  \url{https://doi.org/10.1016/j.poetic.2013.10.001}.
+\end{itemize}
+
+\emph{Recommended}
+
+\begin{itemize}
+\tightlist
+\item
+  Roberts, Margaret, Brandon M. Stewart, Dustin Tingley, Christopher
+  Lucas, Jetson Leder-Luis, Shana Kushner Gadarian, Bethany Albertson,
+  and David Rand. 2014. ``Structural Topic Models for Open-Ended Survey
+  Responses: Structural Topic Models for Survey Responses.''
+  \emph{American Journal of Political Science} 58 (4): 1064--82.
+  \url{https://doi.org/10.1111/ajps.12103}.
+\end{itemize}
+
+\hypertarget{week-10-111-113}{%
+\subsection{Week 10, 11/1 \& 11/3}\label{week-10-111-113}}
+
+\hypertarget{machine-learning-i-prediction-and-explanation}{%
+\subsubsection{Machine Learning I: Prediction and
+explanation}\label{machine-learning-i-prediction-and-explanation}}
+
+\emph{Readings}
+
+\begin{itemize}
+\tightlist
+\item
+  Molina, Mario, and Filiz Garip. 2019. ``Machine Learning for
+  Sociology.'' \emph{Annual Review of Sociology} 45: 27--45.
+\end{itemize}
+
+\hypertarget{week-11-118-1110}{%
+\subsection{Week 11, 11/8 \& 11/10}\label{week-11-118-1110}}
+
+\hypertarget{machine-learning-ii-text-classification}{%
+\subsubsection{Machine learning II: Text
+classification}\label{machine-learning-ii-text-classification}}
+
+\emph{Readings}
+
+\begin{itemize}
+\tightlist
+\item
+  Hanna, Alex. 2013. ``Computer-Aided Content Analysis of Digitally
+  Enabled Movements.'' \emph{Mobilization: An International Quarterly}
+  18 (4): 367--388.
+\end{itemize}
+
+\emph{Recommended}
+
+\begin{itemize}
+\tightlist
+\item
+  Barberá, Pablo, Amber E. Boydstun, Suzanna Linn, Ryan McMahon, and
+  Jonathan Nagler. 2020. ``Automated Text Classification of News
+  Articles: A Practical Guide.'' \emph{Political Analysis}, June, 1--24.
+  \url{https://doi.org/10.1017/pan.2020.8}.
+\end{itemize}
+
+\hypertarget{week-12-1115-1117}{%
+\subsection{Week 12, 11/15 \& 11/17}\label{week-12-1115-1117}}
+
+\hypertarget{machine-learning-iii-challenges}{%
+\subsubsection{Machine learning III:
+Challenges}\label{machine-learning-iii-challenges}}
+
+\emph{Readings}
+
+\begin{itemize}
+\tightlist
+\item
+  Salganik, Matthew, Ian Lundberg, Alexander Kindel, et al.~2020.
+  ``Measuring the Predictability of Life Outcomes with a Scientiﬁc Mass
+  Collaboration.'' \emph{Proceedings of the National Academy of
+  Sciences}.
+\item
+  Buolamwini, Joy, and Timnit Gebru. 2018. ``Gender Shades:
+  Intersectional Accuracy Disparities in Commercial Gender
+  Classiﬁcation.'' In \emph{Proceedings of Machine Learning Research},
+  81:1--15.
+\end{itemize}
+
+\hypertarget{week-13-1122-no-class-wednesday-for-thanksgiving}{%
+\subsection{Week 13, 11/22 (No class Wednesday for
+Thanksgiving)}\label{week-13-1122-no-class-wednesday-for-thanksgiving}}
+
+\hypertarget{machine-learning-iv-image-classification}{%
+\subsubsection{Machine learning IV: Image
+classification}\label{machine-learning-iv-image-classification}}
+
+\emph{Readings}
+
+\begin{itemize}
+\tightlist
+\item
+  Torres, Michelle, and Francisco Cantú. 2021. ``Learning to See:
+  Convolutional Neural Networks for the Analysis of Social Science
+  Data.'' \emph{Political Analysis}, April, 1--19.
+  \url{https://doi.org/10.1017/pan.2021.9}.
+\item
+  Gebru, Timnit, Jonathan Krause, Yilun Wang, Duyun Chen, Jia Deng, Erez
+  Lieberman Aiden, and Li Fei-Fei. 2017. ``Using Deep Learning and
+  Google Street View to Estimate the Demographic Makeup of Neighborhoods
+  across the United States.'' \emph{Proceedings of the National Academy
+  of Sciences} 114 (50): 13108--13.
+  \url{https://doi.org/10.1073/pnas.1700035114}.
+\end{itemize}
+
+\hypertarget{week-14-1129-111}{%
+\subsection{Week 14, 11/29 \& 11/1}\label{week-14-1129-111}}
+
+\hypertarget{simulation-and-agent-based-models}{%
+\subsubsection{Simulation and agent-based
+models}\label{simulation-and-agent-based-models}}
+
+\emph{Readings}
+
+\begin{itemize}
+\tightlist
+\item
+  Macy, Michael, and Robert Willer. 2002. ``From Factors to Factors:
+  Computational Sociology and Agent-Based Modeling.'' \emph{Annual
+  Review of Sociology} 28 (1): 143--66.
+  \url{https://doi.org/10.1146/annurev.soc.28.110601.141117}.
+\item
+  \url{https://cran.r-project.org/web/packages/shinySIR/vignettes/Vignette.html}
+\end{itemize}
+
+\hypertarget{week-15-126-127}{%
+\subsection{Week 15, 12/6 \& 12/7}\label{week-15-126-127}}
+
+\hypertarget{presentations}{%
+\subsubsection{Presentations}\label{presentations}}
+
+\hypertarget{final-projects-due-1216-at-5pm}{%
+\subsection{\texorpdfstring{\emph{Final projects due 12/16 at
+5pm}}{Final projects due 12/16 at 5pm}}\label{final-projects-due-1216-at-5pm}}
+
+\end{document}
