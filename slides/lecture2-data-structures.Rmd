@@ -38,21 +38,12 @@ knitr::knit_hooks$set(mysize = function(before, options, envir) {
 
 
 # Plan
-- Object-oriented programming
 - Basic types
 - Vectors
 - Lists
 - Matrices
 - Data frames and tibbles
-- A note on style
 
-# Object-oriented programming
-- A paradigm of computer programming
-    - We create *objects* of different *classes* such as numbers, strings, and data frames
-    - These objects have *attributes*, properties such as data
-        - e.g. The numeric object we call **`A`** has an attribute called `value` equal to **`1`**
-    - Objects are associated with *methods* that allow us to manipulate them
-        - e.g. a numeric object might have a method called `add`, such that **`A + A`** will return **`2`**.
 
 # Basic types
 There are four basic types we will be using throughout the class. We use the `<-` operator to assign an object to a name.
