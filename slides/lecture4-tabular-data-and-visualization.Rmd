@@ -1,0 +1,455 @@
+---
+title: "Social Data Science" 
+subtitle: "Tabular data and visualization"
+author: Dr. Thomas Davidson
+institute: Rutgers University
+date: September 15, 2021
+output:
+    beamer_presentation:
+      theme: "Szeged"
+      colortheme: "beaver"
+      fonttheme: "structurebold"
+      toc: false
+      incremental: false
+header-includes:
+  - \usepackage{multicol}
+  - \usepackage{caption}
+  - \usepackage{hyperref}
+  - \captionsetup[figure]{font=scriptsize}
+  - \captionsetup[figure]{labelformat=empty}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(dev = 'pdf')
+library("knitr")
+library("formatR")
+
+opts_chunk$set(tidy.opts=list(width.cutoff=80),tidy=TRUE)
+opts_chunk$set(tidy = FALSE)
+
+knitr::knit_hooks$set(mysize = function(before, options, envir) {
+  if (before) 
+    return(options$size)
+})
+```
+
+# Plan
+
+- Recap on programming fundamentals
+- Tabular data and the tidyverse
+- Data visualization with ggplot2
+- A primer on Github
+
+
+# Recap
+## Programming fundamentals
+- Boolean logic
+- If-else statements
+- Loops
+- Functions
+- Pipes
+  
+# Tabular data
+## The tidyverse
+
+```{r, echo=TRUE, tidy=TRUE, mysize=TRUE, size='\\footnotesize'}
+library(tidyverse)
+tidyverse::tidyverse_packages()
+```
+Visit the tidyverse website for more information on the different packages \href{https://tidyverse.tidyverse.org/}{website}
+
+# Tabular data
+## Reading data
+We can read data from files or directly from the web using `readr`. Here we're reading in data from the *New York Times* state-level COVID-10 tracker. The `glimpse` command shows us a preview of the table. We can use `View` to open up the data in a new window.
+```{r, echo=TRUE, tidy=TRUE, mysize=TRUE, size='\\footnotesize'}
+c19 <- read_csv("https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv")
+glimpse(c19)
+```
+
+# Tabular data
+## Selecting columns
+We can use the select command to select subsets of columns in the dataset.
+```{r, echo=TRUE, tidy=TRUE, mysize=TRUE, size='\\footnotesize'}
+c19 %>% select(date, state, cases) # Select these columns
+c19 <- c19 %>% select(-fips) # select all except named column, replace dataset
+```
+
+# Tabular data
+## Filtering
+The `filter` command allows us to subset rows that meet one or more conditions.
+```{r, echo=TRUE, tidy=TRUE, mysize=TRUE, size='\\footnotesize'}
+c19 %>% filter(cases > 10000) # conditional filtering
+c19 %>% filter(str_detect(state, "New")) # str_detect function from stringr package
+c19 %>% filter(str_detect(state, "New") & cases > 10000)
+c19 %>% filter(date > as.Date("2021-09-01")) # using as.Date to case string to date
+```
+
+# Tabular data
+## Sampling
+We can also filter our dataset by taking a sample. This can be very useful for testing purposes.
+```{r, echo=TRUE, tidy=TRUE, mysize=TRUE, size='\\footnotesize'}
+sample_n(c19, 10) # Randomly pick n rows
+sample_frac(c19, 0.01) # Randomly pick a fraction of rows
+```
+
+# Tabular data
+## Slicing
+The `slice` commands can be used to select ordered subsets of rows.
+```{r, echo=TRUE, tidy=TRUE, mysize=TRUE, size='\\footnotesize'}
+slice_max(c19, order_by = cases, n = 10) # Get the top n rows by a specified column
+slice_min(c19, order_by = cases, n = 1, with_ties = TRUE) # with_ties determines whether tied results are returned.
+```
+
+# Tabular data
+## Making new columns using mutate
+The `mutate` function allows us to generate new columns.
+```{r, echo=TRUE, tidy=TRUE, mysize=TRUE, size='\\footnotesize'}
+c19 <- c19 %>% mutate(deaths_per_case = deaths / cases)
+colnames(c19)
+```
+
+# Tabular date
+## Mutate
+How can we recover the new cases and deaths from the cumulative data using mutate? Could this allow us to see the daily case rate?
+```{r, echo=TRUE, tidy=TRUE, mysize=TRUE, size='\\footnotesize'}
+c19 <- c19 %>% group_by(state) %>% mutate(new_cases = cases - lag(cases),
+                                          new_deaths = deaths - lag(deaths))
+glimpse(c19)
+```
+
+# Tabular data
+## Summarizing
+We can use summarize to create statistical summaries of the data. We define a new variable within `summarize` to capture a defined summary.
+```{r, echo=TRUE, tidy=TRUE, mysize=TRUE, size='\\footnotesize'}
+# Summarize specific variables
+c19 %>% summarize(mean_deaths = mean(deaths), 
+                  median_deaths = median(deaths),
+                  max_deaths = max(deaths))
+```
+
+# Tabular data
+## Summarizing
+The `summarize_all` command takes a summary function (e.g. mean, min, max) and applies it to all columns. This can be useful if there are lots of variables. See documentation for other variants of summarize.
+```{r, echo=TRUE, tidy=TRUE, mysize=TRUE, size='\\footnotesize'}
+c19 %>% summarize_all(max) # Map a summary function to all valid columns
+```
+
+# Tabular data
+## Grouping
+Often we want to group our data before summarizing. What do these two examples tell us?
+```{r, echo=TRUE, tidy=TRUE, mysize=TRUE, size='\\footnotesize'}
+c19 %>% group_by(state) %>% summarise(mean(deaths_per_case)) # mean deaths per case by state
+c19 %>% group_by(date) %>% summarise(mean(cases))
+```
+
+# Tabular data
+## Grouping
+Sometimes we might want to create a group-level variable then revert back to the original dataset. We can do this using the `ungroup` command.
+```{r, echo=TRUE, tidy=TRUE, mysize=TRUE, size='\\footnotesize'}
+c19 %>% group_by(date) %>% mutate(daily_mean = mean(cases)) %>% ungroup()
+```
+
+# Tabular data
+## Joins
+We often want to join together different datasets. Venn diagrams are a useful way for thinking about this.
+```{r, out.width="70%",out.height="70%", fig.align="center", include=FALSE, eval=FALSE}
+include_graphics('https://d33wubrfki0l68.cloudfront.net/aeab386461820b029b7e7606ccff1286f623bae1/ef0d4/diagrams/join-venn.png')
+```
+
+
+# Tabular data
+## Joins
+The `left_join` is the most commonly used type of join. We keep all rows in our left dataset and the rows on the right dataset with valid matches. Here we're download a dataset about governors and joining it on state.
+```{r, echo=TRUE, tidy=TRUE, mysize=TRUE, size='\\footnotesize'}
+gov <- read_csv("https://raw.githubusercontent.com/CivilServiceUSA/us-governors/master/us-governors/data/us-governors.csv")
+gov <- gov %>% select(state_name, party)
+
+c19 <- c19 %>% left_join(gov, by = c("state" = "state_name")) # We can pipe c19 into the left_join function.
+```
+
+
+# Tabular data
+## Joining
+Let's consider another example to get state-level population data. In this case, we're reading an Excel file from the Census bureau.
+```{r, echo=TRUE, tidy=TRUE, mysize=TRUE, size='\\footnotesize'}
+library(readxl)
+census <- "https://www2.census.gov/programs-surveys/popest/tables/2010-2019/state/totals/nst-est2019-01.xlsx"
+# read_excel function from readxl does not currently handle files from the web, so we need to get it manually
+tmp <- tempfile(fileext = ".xlsx")
+httr::GET(url = census, httr::write_disk(tmp))
+pop <- read_excel(tmp)
+```
+
+# Tabular data
+## Joining
+These data are a little messier. We need to do a bit of cleaning up.
+```{r, echo=TRUE, tidy=TRUE, mysize=TRUE, size='\\footnotesize'}
+pop.states <- pop[9:61,c(1,13)]
+colnames(pop.states) <- c("state", "pop")
+pop.states <- pop.states %>% 
+  mutate(state = str_replace(state, ".", "")) %>%
+  drop_na()
+```
+
+# Tabular data
+## Joining
+Now we can join our new column to the dataset.
+```{r, echo=TRUE, tidy=TRUE, mysize=TRUE, size='\\footnotesize'}
+c19 <- c19 %>% left_join(pop.states, by = "state")
+```
+
+# Data visualization
+## ggplot2
+The `ggplot2` library is loaded as part of the tidyverse. It can produce may different styles of plots with a simple, tidy syntax. Let's consider a basic example.
+```{r, echo=TRUE, tidy=TRUE, mysize=TRUE, size='\\footnotesize'}
+c19 <- c19 %>% drop_na(party) # Dropping any row not considered a state
+length(unique(c19$state)) # Verifying the correct number of states
+
+ggplot(c19, # data
+       aes(x = date, y= cases)) + # aesthetic mapping
+    geom_point() # plot type
+
+ggplot(c19,
+        aes(x = cases)) +
+    geom_histogram()
+```
+# Data visualization
+## ggplot2
+We can see that the points above are lines, since we have daily measures for each state. A line plot would be more appropriate. Here's a linear trend line.
+```{r, echo=TRUE, tidy=TRUE, mysize=TRUE, size='\\footnotesize'}
+ggplot(c19, # data
+       aes(x = date, y= cases)) + # aesthetic mapping
+    geom_smooth(method='lm', se = F) # plot type
+```
+# Data visualization
+## ggplot2
+We can easily break it out by state by adding a group parameter. Now each state has a separate line fitted.
+```{r, echo=TRUE, tidy=TRUE, mysize=TRUE, size='\\footnotesize'}
+ggplot(c19, # data
+       aes(x = date, y= cases, group=state)) + # aesthetic mapping
+    geom_smooth(method='lm', se = F) # plot type
+```
+# Data visualization
+## ggplot2
+We can also fit a smoothed line to better capture the trends.
+```{r, echo=TRUE, tidy=TRUE, mysize=TRUE, size='\\footnotesize'}
+ggplot(c19, # data
+       aes(x = date, y= cases, group=state)) + # aesthetic mapping
+    geom_smooth(method='loess') # plot type
+```
+
+# Data visualization
+## ggplot2
+The color parameter allows us to assign a different color to each line.
+```{r, echo=TRUE, tidy=TRUE, mysize=TRUE, size='\\footnotesize'}
+ggplot(c19, # data
+       aes(x = date, y= cases, group=state, color=state)) + # aesthetic mapping
+    geom_smooth(method='loess') # plot type
+```
+
+# Data visualization
+## ggplot2
+We can easily group by other variables.
+```{r, echo=TRUE, tidy=TRUE, mysize=TRUE, size='\\footnotesize'}
+ggplot(c19, # data
+       aes(x = date, y= cases, group=party, color=party)) + # aesthetic mapping
+    geom_smooth(method='loess') # plot type
+```
+
+# Data visualization
+## ggplot2
+Why might the previous plot be misleading? Is there a better way to look at how cases vary by partisanship of the governor?
+```{r, echo=TRUE, tidy=TRUE, mysize=TRUE, size='\\footnotesize'}
+c19 <- c19 %>% mutate(case_rate = cases / pop)
+p <- ggplot(c19, # data
+       aes(x = date, y= case_rate, group=party, color=party)) + # aesthetic mapping
+    geom_smooth(method='loess') # plot type
+p
+```
+# Data visualization
+## ggplot2
+Now we have a plot, let's make it look a bit nicer. We can easily add labels and modify the axes.
+```{r, echo=TRUE, tidy=TRUE, mysize=TRUE, size='\\footnotesize'}
+p + # previous plot
+    theme_minimal() + # themes change the overall look of a plot
+    labs(x = "", y = "Infection rate", title = "Cumulative COVID-19 cases per capita by governor type, 2020-2021",
+         color = "Governor affiliation", caption = "COVID-19 data from the New York Times. Updated September 15, 2021.") + 
+    theme(axis.text.x = element_text(angle = 90))
+```
+
+# Data visualization
+## ggplot2
+We can easily modify this code to look at the data in a different way.
+```{r, echo=TRUE, tidy=TRUE, mysize=TRUE, size='\\footnotesize'}
+c19 <- c19 %>% mutate(daily_case_rate = new_cases / pop)
+ggplot(c19, # data
+       aes(x = date, y= daily_case_rate, group=party, color=party)) + # aesthetic mapping
+    geom_smooth(method='loess') + # plot type
+theme_minimal() + # themes change the overall look of a plot
+    labs(x = "", y = "Daily infection rate", title = "Daily COVID-19 cases per capita by governor type, 2020-2021",
+         color = "Governor affiliation", caption = "COVID-19 data from the New York Times. Updated September 15, 2021.") + 
+    theme(axis.text.x = element_text(angle = 90))
+```
+# Data visualization
+## ggplot2
+What could we change to include separate lines for each state while maintaining the color?
+```{r, echo=TRUE, tidy=TRUE, mysize=TRUE, size='\\footnotesize'}
+ggplot(c19, # data
+       aes(x = date, y= daily_case_rate, group=party, color=party)) + # aesthetic mapping
+    geom_smooth(method='loess') + # plot type
+theme_minimal() + # themes change the overall look of a plot
+    labs(x = "", y = "Daily infection rate", title = "Daily COVID-19 cases per capita by governor type, 2020-2021",
+         color = "Governor affiliation", caption = "COVID-19 data from the New York Times. Updated September 15, 2021.") + 
+    theme(axis.text.x = element_text(angle = 90))
+```
+
+# Data visualization
+## ggplot2
+The `ggplot` package can be used to produce many different types of visualizations. For example, we can use it to produce maps. Here we load the package `maps` to get the shapefile for each state. The example 
+```{r, echo=TRUE, tidy=TRUE, mysize=TRUE, size='\\footnotesize', eval=FALSE}
+#install.packages("maps")
+library(maps)
+us_states <- map_data("state")
+
+# We can plot an empty map
+ggplot(data = us_states,
+            mapping = aes(x = long, y = lat,
+                          group = group)) + 
+  geom_polygon(fill = "white", color = "black") + theme_minimal()
+```
+\tiny The code for this example is based on \href{https://socviz.co/maps.html}{Chapter 7} of Kieran Healy's *Data Visualization*
+
+
+# Data visualization
+## ggplot2
+We have to merge our data with the shapefile in order to plot it on the map.
+```{r, echo=TRUE, tidy=TRUE, mysize=TRUE, size='\\footnotesize', eval=FALSE}
+c19.map <- c19 %>% mutate(state_lower = tolower(state)) %>% left_join(us_states, by = c("state_lower" = "region"))
+glimpse(c19.map)
+
+p <- ggplot(data = c19.map,
+            aes(x = long, y = lat,
+                group = group, fill = party))
+
+p + geom_polygon(color = "gray90", size = 0.1) +
+    coord_map(projection = "albers", lat0 = 39, lat1 = 45) 
+```
+
+# Data visualization
+## ggplot2
+Let's try to do something more interesting.
+```{r, echo=TRUE, tidy=TRUE, mysize=TRUE, size='\\footnotesize', eval=FALSE}
+#install.packages("ggthemes")
+library(ggthemes)
+
+c19.map <- c19.map %>% mutate(cases_per_100k = new_cases / (pop/100000)) # a more interpretable metric
+
+p <- ggplot(data = c19.map %>% filter(date == as.Date("2021-09-14")),
+            aes(x = long, y = lat,
+                group = group, fill = cases_per_100k))
+
+p + geom_polygon(color = "gray90", size = 0.1) +
+    coord_map(projection = "albers", lat0 = 39, lat1 = 45) + 
+  scale_fill_gradient2(low = "blue", # Determines the color scale
+                                mid = scales::muted("purple"),
+                                high = "red") +
+  theme_map() + # A theme for making maps
+  labs(title = "COVID-19 new infection rate, September 14th 2021", 
+                     caption = "COVID-19 data from the New York Times. \n 2019 population estimates from the Census Bureau.",
+                     fill = "Infections per \n 100k population")
+```
+# Some very preliminary data science
+## What predicts the state-level daily infection rate?
+We can use linear regression to predict the number of new cases given information about the state. What do the results reveal? Which model is more trustworthy?
+```{r, echo=TRUE, tidy=TRUE, mysize=TRUE, size='\\footnotesize'}
+c19$new_cases.lag <- lag(c19$new_cases)
+summary(lm(new_cases ~ new_cases.lag + pop + party + as.numeric(date), data = c19))
+summary(lm(new_cases ~ new_cases.lag + pop + party + as.numeric(date), data = c19 %>% filter(date == as.Date("2021-09-14"))))
+```
+
+# Github
+## Overview
+- Github is a version-control system
+    - This allows you to easily control and manage changes to your code (similar to Track Changes in Word)
+    - It can facilitate collaboration
+    - Version-control helps to ensure reproducibility
+    - It makes it easy to share code
+- Github is *not* designed as a place to store large datasets (100Mb file size limit)
+
+# Github
+## Terminology
+- A Github *repository* (or *repo* for short) contains all files and associated history
+    - A repository can be public or private
+    - Files should be organized into folders
+    - Github can render Markdown files (suffix ``.md`` in Markdown), useful for documentation
+- Github repositories exist online and you can *clone* them to your local computer
+
+# Github
+## Using Github
+- You can interact with Github in several different ways
+  - Github Desktop (recommended)
+  - Through your browser (not recommended)
+  - Using the command line
+  - RStudio integration
+    - See https://happygitwithr.com/index.html for a guide
+
+# Github
+## Basic commands
+- Let's say you want to make changes to a repository, in this case adding a single file called ``myfile.txt``:
+1. Make changes to ``myfile.txt`` and save the file.
+2. ``git status`` will show information about the status of your repo.
+3. ``git add myfile.txt`` will stage the file to be added to the online repo.
+    - Avoid using ``git add *`` 
+4. ``git commit -m "Adding a new file"`` commits the file to the repo, along with an informative message.
+
+# Github
+## Basic commands
+5. ``git push origin main`` then tells Github to push the local changes to the main branch of the online repository
+    - Conversely, ``git pull origin main`` will pull the latest updates from your main branch to your local machine
+6. Now visit the web page for your repository and you should see the changes.
+
+
+# Github
+## Viewing commit histories
+- You can view the history of a given file by looking at the commits
+    - e.g. Let's look at the syllabus for this course https://github.com/t-davidson/social-data-science-fall-2021/commits/main/syllabus.Rmd
+
+# Github
+## Branches and merging
+- A *branch* consists of a particular version of the repo
+    - All repos start with a single branch called *main* (formerly *master*)
+    - You can create separate branches for particular tasks
+        - This is particularly useful for collaboration
+    - You can then *merge* the branch back into main
+        - But be careful of *merge conflicts*
+- A *pull request* is a mechanism for merging content into a repository
+    - This can enable the code to be reviewed before it is integrated
+- The *issue* function can be used to note any issues with the code and to bring them to the repo owner's attention (e.g. https://github.com/tidyverse/ggplot2)
+
+# Github
+## Forks
+- A *fork* is a copy of another repository (usually from another user)
+    - This allows you to easily copy the repository and modify it without changing the original content
+    
+# Github
+## Classroom
+- We will be using a tool called *Github Classroom* for the homework assignments
+  - You will receive a special template repository containing the homework
+  - The submission will occur when you push the final commits to Github
+    - Further instructions will be included
+
+# Github
+## Student Developer Pack
+- If you haven't already, log in and apply for the Github Student Developer pack
+  - https://education.github.com/pack
+- This allows you to make unlimited private repositories and gives access to many other tools
+    
+# Questions?
+
+    
+    
+
+
