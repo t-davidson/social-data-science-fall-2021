@@ -178,7 +178,7 @@ Repeating the summary operation for both artists. Note how we now group by `arti
 r <- both %>% filter(album_release_year < 2000) %>%
   group_by(album_release_year, artist_name) %>%
   summarize(mean.dan = mean(danceability), 
-            mean.ac = mean(acousticness)) # note also keeping artist name for summary
+            mean.ac = mean(acousticness))
 #View(r)
 ```
 
@@ -300,17 +300,19 @@ ggplot(album.year.count, aes(x = year, y = artist, height = n_albums,
 - Some features require a Spotify login
   - Edit the settings for the app and add `http://localhost:1410/` to Redirect URIs
   - This tells the API to open up authentication on port 1410 of your computer
+  - Re-run the chunk about to authorize the app, this should open up a new browser tab where you confirm you agree to the terms of service
+    - Note: You may need to install the package `httpuv` for this to work
 
 # APIs
 ## Accessing your Spotify information
+Once you have added the Redirect URI and reauthorized your app you can run this code to look at your most recently played tracks. There are many other functions you can use to get and even modify your own data (so use these carefully!)
 ```{r, echo=TRUE, eval=FALSE, tidy=FALSE, mysize=TRUE, size='\\footnotesize'}
 get_my_recently_played(limit = 5) %>% 
     mutate(artist.name = map_chr(track.artists, function(x) x$name[1]),
            played_at = as_datetime(played_at)) %>% 
     select(track.name, artist.name, track.album.name, played_at) %>% as_tibble()
 ```
-\tiny Example from the `spotifyr` documentation. Note this will only work if you have added a redirect URI to your app.
-
+\tiny Example from the `spotifyr` documentation. 
 
     
 # Questions?
