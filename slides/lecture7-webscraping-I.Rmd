@@ -1,0 +1,375 @@
+---
+title: "Social Data Science" 
+subtitle: "Scraping the web I"
+author: Dr. Thomas Davidson
+institute: Rutgers University
+date: September 27, 2021
+output:
+    beamer_presentation:
+      theme: "Szeged"
+      colortheme: "beaver"
+      fonttheme: "structurebold"
+      toc: false
+      incremental: false
+header-includes:
+  - \usepackage{multicol}
+  - \usepackage{caption}
+  - \captionsetup[figure]{font=scriptsize}
+  - \captionsetup[figure]{labelformat=empty}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(dev = 'pdf')
+library("knitr")
+library("formatR")
+
+opts_chunk$set(tidy.opts=list(width.cutoff=80),tidy=TRUE)
+opts_chunk$set(tidy = FALSE)
+
+knitr::knit_hooks$set(mysize = function(before, options, envir) {
+  if (before) 
+    return(options$size)
+})
+```
+
+# Plan
+1. Ethics and data science
+2. Introduction to webscraping
+3. When to use it
+4. How to scrape a web page using R (Part I)
+
+# Ethics and data science
+## New ethical questions
+- Salganik discusses some examples of recent studies that raise new ethical questions
+  - Emotional contagion experiment on Facebook
+  - Observational study of Facebook networks
+  - Browser-based study of censorship
+  
+# Ethics and data science
+## Four ethical principles
+- *Respect for persons*
+  - Treating people as autonomous and honoring their wishes
+- *Beneficence*
+  - Understanding risks and benefits; finding the right balance
+- *Justice*
+  - Even distribution of the risks and benefits
+- *Respect for law and public interest*
+  - Extends beyond research participants to other stakeholders
+  - Compliance and transparency-based accountability
+  
+# Ethics and data science
+## Two ways of thinking about research ethics
+- *Consequentialism*
+  - Focus on the consequences of research
+  - Ends
+- *Deontology*
+  - Consideration of ethical duties, irrespective of consequences
+  - Means
+- Salganik argues that both perspectives most useful when combined
+
+# Ethics and data science
+## Case study
+- Researchers at Rutgers decide to use information from Reddit to help improve student services
+- They use Reddit API to collect the complete posting history of all users who posted on r/rutgers
+- A small group of these users is sent a survey. They are also asked for consent to merge their Reddit history and confidential student records
+- The survey results are used to build a statistical model to predict the race, gender, sexual orientation, school year, major, and GPA of *all* r/rutgers posters
+- This information is used to study how the content of posts varies across different groups of students
+
+# Ethics and data science
+## Discussion
+- How might this study violate some of the four ethical principles?
+- What issues arise when thinking about this study from a consequentialist or deontlogical perspective?
+- Could we design the study in a more ethical way?
+
+# Ethics and data science
+## Four challenges in digital research
+- Informed consent
+  - When is it practical to get consent to participate?
+  - When is it acceptable to proceed without consent?
+- Managing informational risk
+  - Risks of disclosure of personal information
+  - Anonymization is often imperfect
+- Privacy
+  - What information is public or private?
+  - Context-relative informational norms
+- Ethical decisions and uncertainty
+  - Minimal risk standard
+  - Power analysis
+  
+# What is web-scraping?
+## Terminology
+- Web-scraping is a method to collect data from websites
+  - We use the code underlying a webpage to collect data (**scraping**)
+  - The process is then repeated for other pages on the same website in an automated fashion (**crawling**)
+
+# What is web-scraping?
+## Challenges
+- Different websites have different structures, so a script used to scrape one website will likely have to be changed to scrape another
+- Websites can be internally inconsistent, making them difficult to scrape
+- Some websites are easier to crawl than others
+- Some websites limit or prohibit scraping
+
+# When should I use it?
+## Commercial use cases
+- Search engines
+  - Google scrapes websites to create a searchable index of the internet
+- Price comparison
+  - Kayak scrape airlines to compare flight prices, other websites do the same for hotels and rental cars
+- Recruitment
+  - Recruitment companies scrape LinkedIn to get data on workers
+  
+# When should I use it?
+## Social scientific use cases
+- Web-scraping is a useful tool to collect data from websites without APIs
+  - Large social media platforms and other sites have APIs but smaller websites do not
+    - Local newspapers, forums, small businesses, educational institutions, etc.
+- Often we want to collect data from a single website
+  - e.g. All posts written on a forum
+- Sometimes we might want to collect data from many websites
+  - e.g. All schools in a school district
+  
+# When should I use it?
+## Ethical and legal considerations
+```{r, out.width="70%",out.height="70%", fig.align="center"}
+include_graphics('../images/fielser_et_al.png')
+```
+
+# When should I use it?
+## Ethical and legal considerations
+- Fiesler, Beard, and Keegan (2020)s review the legal cases related to web-scraping and analyze website terms of service
+  - "In short, it is an unsettled question as to whether it is explicitly illegal (or even a criminal act) to violate TOS."
+  - No academic or journalist has ever been prosecuted for violating a website terms of service to collect data for research
+- They analyze terms of service of over 100 social media websites
+  - Terms of service are ambiguous, inconsistent, and lack context
+
+
+# When should I use it?
+## Best-practices
+- Only scrape publicly available data
+  - i.e. You can access the page on the web without logging in
+- Do not scrape copyright protected data
+- Try not to violate website terms of service
+- Do not burden the website
+  - Limit the number of calls you make (similar to rate-limiting in APIs)
+- Avoid using the data in a way that may interfere with business
+  - i.e. Don't copy valuable data from a small business and share it on Github
+
+# How to scrape a web page
+## Start by looking up ``robots.txt''
+```{r, out.width="70%",out.height="70%", fig.align="center"}
+include_graphics('../images/robots.png')
+```
+
+# How to scrape a web page
+## Decoding ``robots.txt``
+- **``User-agent``** = the name of the scraper
+  - **``*``** = All scrapers
+- **``Allow: /path/``** = OK to scrape
+- **``Disallow: /path/``** = Not OK to scrape
+  - **``Disallow: /``** = Not OK to scrape any pages
+- **``Crawl-Delay: N``** = Wait ``N`` miliseconds between each call to the website 
+
+# How to scrape a web page
+## Exercise
+- Find a website of interest
+- Locate the robots.txt file
+  - Does the website allow webscraping?
+  - Are there any restrictions on which pages can be accessed?
+
+# How to scrape a web page
+## Terminology
+- A web-page is loaded using a **URL** (Uniform Resource Locator)
+- The underlying code we are interested in is usually **HTML** (Hypertext Markup Language)
+- Many websites use **CSS** (Cascading Style Sheets) to structure HTML
+  - This will help us to find what we are interested in
+    - See https://flukeout.github.io/ for an interactive tutorial on using CSS selectors
+    - Chrome Plugin to help find CSS elements: https://selectorgadget.com/
+
+# How to scrape a web page
+## Inspecting HTML
+- Open up a website and right click on any text or image on the screen
+  - You should see an option ``Inspect Element``
+  - This will allow you to see the code used to generate the page
+  
+# How to scrape a web page
+```{r, out.width="70%",out.height="70%", fig.align="center"}
+include_graphics('../images/inspect_google.png')
+```
+
+
+# How to scrape a web page
+```{r, out.width="70%",out.height="70%", fig.align="center"}
+include_graphics('../images/main_page.png')
+```
+
+# How to scrape a web page
+```{r, out.width="70%",out.height="70%", fig.align="center"}
+include_graphics('../images/scrape_page.png')
+```
+
+# How to scrape a web page
+## Using ``rvest`` to scrape HTML
+```{r, echo=TRUE, mysize=TRUE, size='\\footnotesize', tidy=FALSE}
+library(rvest)
+library(tidyverse)
+library(stringr)
+```
+
+# How to scrape a web page
+## Using ``rvest`` to scrape HTML
+```{r, echo=TRUE, mysize=TRUE, size='\\footnotesize', tidy=FALSE}
+url <- "https://thecatsite.com/threads/advice-on-cat-introductions-feeling-a-bit-lost.422848/"
+thread <- read_html(url)
+```
+
+# How to scrape a web page
+## Using ``rvest`` to scrape HTML
+```{r, echo=TRUE, mysize=TRUE, size='\\footnotesize', tidy=FALSE}
+class(thread)
+print(thread)
+```
+
+# How to scrape a web page
+## Collecting messages
+First, we parse the HTML to obtain the text of each message on the page. Here we use the CSS selector ``.message-body``, which selects all elements with class ``message-body``. The `html_nodes` function in `rvest` allows us to retrieve these nodes.
+```{r, echo=TRUE, tidy=FALSE, mysize=TRUE, size='\\footnotesize', tidy=FALSE}
+message.data <- thread %>% html_nodes(".message-body")
+print(message.data[1])
+```
+
+# How to scrape a web page
+## Collecting messages
+Next we use `html_text()` to extract the text from the HTML.
+```{r, echo=TRUE, tidy=FALSE, mysize=TRUE, size='\\footnotesize', tidy=FALSE}
+messages <- thread %>% html_nodes(".message-body") %>% 
+  html_text() %>% str_trim() 
+messages[1]
+```
+
+
+# How to scrape a web page
+## Collecting messages
+As expected, there are twenty messages.
+```{r, echo=TRUE, tidy=FALSE, mysize=TRUE, size='\\footnotesize', tidy=FALSE}
+print(length(messages))
+print(substr(messages[1], 1, 250)) # print a substring
+```
+
+
+# How to scrape a web page
+## Getting user names
+Next we collect the name of each user using the same logic. User information is found by parsing the ``.message-userDetails`` node. 
+```{r, echo=TRUE, mysize=TRUE, size='\\footnotesize', tidy=FALSE}
+users <- thread %>% html_nodes(".message-userDetails") %>%
+  html_text() %>% str_trim()
+print(length(users))
+class(users)
+users[1]
+```
+
+
+# How to scrape a web page
+## Getting user names
+Let's add some more elements to the pipe to extract the user name from this string. Note how the elements in the string returned in the previous chunk are separated by the newline symbol (`\n`).
+```{r, echo=TRUE, mysize=TRUE, size='\\footnotesize', tidy=FALSE}
+users <- thread %>% html_nodes(".message-userDetails") %>%
+  html_text() %>% str_trim() %>% str_split('\n')
+class(users)
+users[1:2]
+```
+
+# How to scrape a web page
+## Getting user names
+The final step is to get the name from each list. This can be done by using the `map` command.
+```{r, echo=TRUE, mysize=TRUE, size='\\footnotesize', tidy=FALSE}
+users <- thread %>% html_nodes(".message-userDetails") %>%
+  html_text() %>% str_trim() %>% str_split('\n') %>% map(1)
+class(users)
+users[1:2]
+```
+
+# How to scrape a web page
+## Collecting timestamps
+Finally, we also want to get the time-stamp of each message. While the forum only displays dates, we can actually get the full timestamp. What's the problem here?
+```{r, echo=TRUE, mysize=TRUE, size='\\footnotesize', tidy=FALSE}
+dates <- thread %>% html_nodes("time.u-dt")
+print(dates[1])
+length(dates)
+```
+
+
+# How to scrape a web page
+## Collecting timestamps
+I went back to the HTML and found this CSS selector ``.u-concealed .u-dt`` is selected instead. It returns the datetime for each post in the thread, along with the date time at the top indicating when the thread was created.
+```{r, echo=TRUE, mysize=TRUE, size='\\footnotesize', tidy=FALSE}
+dates <- thread %>% html_nodes(".u-concealed .u-dt")
+length(dates)
+dates[1]
+class(dates[1])
+```
+
+# How to scrape a web page
+## Collecting timestamps
+Each HTML node contains several different attributes related to the time. In this case we can select the `datetime` attribute using the `html_attr` function.
+```{r, echo=TRUE, mysize=TRUE, size='\\footnotesize', tidy=FALSE}
+dates <- thread %>% html_nodes(".u-concealed .u-dt") %>% html_attr("datetime")
+dates[1]
+class(dates[1])
+```
+
+# How to scrape a web page
+## Collecting timestamps
+Finally, its often useful to clean up timestamps. We can do this using the `lubridate` package. In this case we extract the year, month, day, hour, minutes, and seconds, converted to EST. The result is a special type of object used to represent dates and times.
+```{r, echo=TRUE, mysize=TRUE, size='\\footnotesize', tidy=FALSE}
+library(lubridate)
+dates <- dates %>% ymd_hms(tz = "EST")
+dates[1]
+class(dates)
+```
+
+# How to scrape a web page
+## Putting it all together
+```{r, echo=TRUE, mysize=TRUE, size='\\footnotesize', tidy=FALSE}
+length(users)
+class(users)
+length(messages)
+class(messages)
+length(dates)
+class(dates)
+```
+
+# How to scrape a web page
+## Putting it all together
+```{r, echo=TRUE, mysize=TRUE, size='\\footnotesize', tidy=FALSE}
+data <- as_tibble(cbind(messages, unlist(users), dates[-1]))
+colnames(data) <- c("message", "user", "timestamp")
+head(data)
+```
+
+# How to scrape a web page
+## Creating a function to collect and store data
+```{r, echo=TRUE, mysize=TRUE, size='\\footnotesize', tidy=FALSE}
+get.posts <- function(thread) {
+  messages <- thread %>% html_nodes(".message-body") %>% 
+    html_text() %>% str_trim()
+  users <- thread %>% html_nodes(".message-userDetails") %>%
+    html_text() %>% str_trim() %>% str_split('\n') %>% map(1)
+  timestamps <- thread %>% html_nodes(".u-concealed .u-dt") %>%
+    html_attr("datetime") %>% ymd_hms(tz="EST")
+  timestamps <- timestamps[-1] # remove first timestamp
+  data <- as_tibble(cbind(messages, unlist(users), timestamps))
+  colnames(data) <- c("message","user", "timestamp")
+  return(data)
+}
+```
+
+# How to scrape a web page
+## Using the function
+We can now easily run all the code to extract information using a single function call:
+```{r, echo=TRUE, mysize=TRUE, size='\\footnotesize', tidy=FALSE}
+results <- get.posts(thread)
+head(results)
+```
