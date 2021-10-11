@@ -321,7 +321,6 @@ tidy.text %>% filter(gutenberg_id == 41360) %>%
 ```
 
 # Working with text
-## Exercise: Removing other junk
 The last example shows how there is still some "junk" in the Durkheim text.
 ```{r, echo=FALSE, tidy=FALSE, mysize=TRUE, size='\\footnotesize'}
 to.remove <- tibble(text=c("pp", "tr")) %>% unnest_tokens(word, text)
