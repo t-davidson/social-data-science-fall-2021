@@ -1,0 +1,387 @@
+---
+title: "Social Data Science" 
+subtitle: "Word embeddings I"
+author: Dr. Thomas Davidson
+institute: Rutgers University
+date: October 18, 2021
+output:
+    beamer_presentation:
+      theme: "Szeged"
+      colortheme: "beaver"
+      fonttheme: "structurebold"
+      toc: false
+      incremental: false
+header-includes:
+  - \usepackage{multicol}
+  - \usepackage{caption}
+  - \usepackage{hyperref}
+  - \captionsetup[figure]{font=scriptsize}
+  - \captionsetup[figure]{labelformat=empty}
+  - \DeclareUnicodeCharacter{2212}{\textendash}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(dev = 'pdf')
+library("knitr")
+library("formatR")
+
+opts_chunk$set(tidy.opts=list(width.cutoff=80),tidy=TRUE)
+opts_chunk$set(tidy = FALSE)
+
+knitr::knit_hooks$set(mysize = function(before, options, envir) {
+  if (before) 
+    return(options$size)
+})
+```
+
+# Plan
+1. Course updates
+2. The vector-space model review
+3. Latent semantic analysis
+4. Language models
+
+# Course updates
+- Project proposal assignment on Canvas, due Friday at 5pm
+  - A short description of the planned project
+  - Data collection
+  - Data cleaning
+  - Data analysis
+  - Data visualization
+  - Team
+  
+# The vector-space model review
+## Vector representations
+- Last week we looked at how we can represent texts as numeric vectors
+  - Documents as vectors of words 
+  - Words as vectors of documents
+- A document-term matrix (*DTM*) is a matrix where documents are represented as rows and tokens as columns
+
+# The vector-space model review
+## Weighting schemes
+- We can use different schemes to weight these vectors
+  - Binary (Does word $w_i$ occur in document $d_j$?)
+  - Counts (How many times does word $w_i$ occur in document $d_j$?)
+  - TF-IDF (How many times does word $w_i$ occur in document $d_j$, accounting for how often $w_i$ occurs across all documents $d \in D$?)
+    - Recall *Zipf's Law*: a handful of words account for most words used; such words do little to help us to distinguish between documents
+    
+# The vector-space model review
+## Cosine similarity
+$$ cos(\theta) = \frac{\vec{u} \cdot \vec{v}}{\|\vec{u}\|\|\vec{v}\|} = \frac{\sum_{i}\vec{u_i} \vec{v_i}}{\sqrt{\sum_{i}\vec{u}_i^2} \sqrt{\sum_{i}\vec{v}_i^2}} $$
+
+# The vector-space model review
+## Limitations
+- These methods produce *high-dimensinal*,  *sparse* vector representations
+  - Given a vocabulary of unique tokens $N$ the length of each vector $|V| = N$.
+  - Many values will be zero since most documents only contain a small subset of the vocabulary.
+  
+
+# The vector-space model review
+## Limitations
+```{r, out.width="70%",out.height="70%", fig.align="center"}
+include_graphics('../images/sparse_memory.png')
+```  
+\tiny Source: https://smltar.com/embeddings.html
+  
+# Latent semantic analysis
+## Latent Semantic Analysis
+- One approach to reduce dimensionality and better capture semantics is called **Latent Semantic Analysis**  (*LSA*)
+  - We can use a process called *singular value decomposition* to find a *low-rank approximation* of a DTM. 
+- This provides *low-dimensional*, *dense* vector representations
+  - Low-dimensional, since $|V| << N$
+  - Dense, since vectors contain real values, with few zeros
+- In short, we can "squash" a big matrix into a much smaller matrix while retaining important information.
+  
+$$DTM = U \Sigma V^T$$
+  
+# Latent semantic analysis
+## Singular Value Decomposition
+```{r, out.width="70%",out.height="60%", fig.align="center"}
+include_graphics('../images/SVD.png')
+```  
+
+\tiny See the \href{https://en.wikipedia.org/wiki/Latent_semantic_analysis}{Wikipedia page} for video of the latent dimensions in a sparse TDM.
+
+# Latent semantic analysis
+## Example: Shakespeare's writings
+`X` is a TF-IDF weighted Document-Term Matrix of Shakespeare's writings from Project Gutenberg. There are 11,666 unique tokens (each of which occurs 10 or more times in the corpus) and 66 documents.
+```{r, echo=TRUE, tidy=FALSE, mysize=TRUE, size='\\footnotesize'}
+library(tidyverse)
+library(ggplot2)
+X <- as.matrix(read.table("data/shakespeare.txt"))
+X <- X[, which(colSums(X) != 0)] # Drop zero columns
+
+dim(X)
+```
+
+# Latent semantic analysis
+## Creating a lookup dictionary
+We can construct a list to allow us to easily find the index of a particular token.
+```{r, echo=TRUE, tidy=FALSE, mysize=TRUE, size='\\footnotesize'}
+lookup.index.from.token <- list()
+
+for (i in 1:length(colnames(X))) {
+  lookup.index.from.token[colnames(X)[i]] <- i
+}
+```
+
+# Latent semantic analysis
+## Using the lookup dictionary
+This easily allows us to find the vector representation of a particular word. Note how most values are zero since the character Hamlet is only mentioned in a handful of documents.
+```{r, echo=TRUE, tidy=FALSE, mysize=TRUE, size='\\footnotesize'}
+lookup.index.from.token["hamlet"]
+round(as.numeric(X[,unlist(lookup.index.from.token["hamlet"])]),3)
+```
+
+
+# Latent semantic analysis
+## Calculating similarties
+The following code normalizes each *column* (rather than row normalization seen last lecture) and constructs a word-word cosine-similarity matrix.
+```{r, echo=TRUE, tidy=FALSE, mysize=TRUE, size='\\footnotesize'}
+normalize <- function(X) {
+  for (i in 1:dim(X)[2]) {
+    X[,i] <- (X[,i]/sqrt(sum(X[,i]^2)))
+  }
+  return(X)
+}
+
+X.n <- normalize(X)
+
+sims <- t(X.n) %*% X.n
+dim(sims)
+```
+
+
+# Latent semantic analysis
+## Most similar function
+For a given token, this function allows us to find the `n` most similar tokens in the similarity matrix, where `n` defaults to `10`.
+```{r, echo=TRUE, tidy=FALSE, mysize=TRUE, size='\\footnotesize'}
+get.top.n <- function(token, sims, n=10) {
+  top <- sort(sims[unlist(lookup.index.from.token[token]),], 
+                 decreasing=T)[1:n]
+  return(top)
+}
+```
+
+# Latent semantic analysis
+## Finding similar words
+```{r, echo=TRUE, tidy=FALSE, mysize=TRUE, size='\\footnotesize'}
+get.top.n("love",sims)
+get.top.n("hate", sims)
+get.top.n("romeo", sims)
+get.top.n("hamlet", sims)
+```
+
+# Latent semantic analysis
+## Singular value decomposition
+The `svd` function allows us to decompose the DTM. We can then easily reconstruct it using the formula shown above.
+```{r, echo=TRUE, tidy=FALSE, mysize=TRUE, size='\\footnotesize'}
+# Computing the singular value decomposition
+lsa <- svd(X)
+
+# We can easily recover the original matrix from this representation
+X.2 <- lsa$u %*% diag(lsa$d) %*% t(lsa$v) # X = U \Sigma V^T
+
+# Verifying that values are the same, example of first column
+sum(round(X-X.2,5))
+```
+
+# Latent semantic analysis
+## Singular value decomposition
+This plot shows the magnitude of the singular values (the diagonal entries of $\Sigma$). \small The magnitude of the singular value corresponds to the amount of variance explained in the original matrix.
+```{r, echo=FALSE, tidy=FALSE, mysize=TRUE, size='\\footnotesize', fig.width=4, fig.height=3}
+lsa.df <- data.frame(lsa$d)
+colnames(lsa.df) <- c("v")
+lsa.df$index <- 1:length(lsa$d)
+ggplot(lsa.df, aes(y = v, x = index)) + geom_line() + geom_point(alpha=0.5) +
+  labs(y="Variance explained", x = "Singular value", title = "Scree plot of variance explained") +
+  theme_minimal()
+```
+
+
+# Latent semantic analysis
+## Truncated singular value decomposition
+In the example above retained the original matrix dimensions. The point of latent semantic analysis is to compute a *truncated* SVD such that we have a new matrix in a sub-space of X. In this case we only want to retain the first `k` dimensions of the matrix.
+```{r, echo=TRUE, tidy=FALSE, mysize=TRUE, size='\\footnotesize'}
+k <- 15 # Dimensions in truncated matrix
+
+# We can take the SVD of X but only retain the first k singular values
+lsa.2 <- svd(X, nu=k, nv=k)
+
+# In this case we reconstruct X just using the first k singular values
+X.trunc <- lsa.2$u %*% diag(lsa.2$d[1:k]) %*% t(lsa.2$v)
+
+# But the values will be slightly different since it is an approximation
+# Some information is lost due to the compression
+sum(round(X-X.trunc,5))
+```
+
+# Latent semantic analysis
+## Recalculating similarties using the LSA matrix
+```{r, echo=TRUE, tidy=FALSE, mysize=TRUE, size='\\footnotesize'}
+words.lsa <- t(lsa.2$v)
+colnames(words.lsa) <- colnames(X)
+
+round(as.numeric(words.lsa[,unlist(lookup.index.from.token["hamlet"])]),5)
+```
+
+
+
+# Latent semantic analysis
+## Recalculating similarties using the LSA matrix
+```{r, echo=TRUE, tidy=FALSE, mysize=TRUE, size='\\footnotesize'}
+words.lsa.n <- normalize(words.lsa)
+sims.lsa <- t(words.lsa.n) %*% words.lsa.n
+```
+
+
+# Latent semantic analysis
+## Comparing similarities
+```{r, echo=TRUE, tidy=FALSE, mysize=TRUE, size='\\footnotesize'}
+get.top.n("love",sims)
+get.top.n("love",sims.lsa)
+bind_cols(names(get.top.n("love",sims)), names(get.top.n("love",sims.lsa)))
+```
+# Latent semantic analysis
+## Comparing similarities
+```{r, echo=TRUE, tidy=FALSE, mysize=TRUE, size='\\footnotesize'}
+get.bottom.n <- function(token, sims, n=10) {
+  bottom <- sort(sims[unlist(lookup.index.from.token[token]),], 
+                 decreasing=F)[1:n]
+  return(bottom)
+}
+
+get.bottom.n("love", sims)
+```
+
+# Latent semantic analysis
+## Comparing similarities
+```{r, echo=TRUE, tidy=FALSE, mysize=TRUE, size='\\footnotesize'}
+get.top.n("hate",sims)
+get.top.n("hate",sims.lsa)
+bind_cols(names(get.top.n("hate",sims)), names(get.top.n("hate",sims.lsa)))
+```
+
+# Latent semantic analysis
+## Comparing similarities
+```{r, echo=TRUE, tidy=FALSE, mysize=TRUE, size='\\footnotesize'}
+get.top.n("romeo", sims)
+get.top.n("romeo", sims.lsa)
+```
+
+# Latent semantic analysis
+## Comparing similarities
+```{r, echo=TRUE, tidy=FALSE, mysize=TRUE, size='\\footnotesize'}
+get.top.n("hamlet", sims)
+get.top.n("hamlet", sims.lsa)
+```
+
+# Latent semantic analysis
+## Execise
+Re-run the code above with a different value of `k` (try lower or higher). Compare some terms in the original similarity matrix and the new matrix. How does changing `k` affect the results?
+```{r, echo=TRUE, tidy=FALSE, mysize=TRUE, size='\\footnotesize'}
+get.top.n("", sims)
+get.top.n("", sims.lsa)
+```
+
+
+# Latent semantic analysis
+## Inspecting the latent dimensions
+We can analyze the meaning of the latent dimensions by looking at the terms with the highest weights in each row. In this case I use the raw LSA matrix without normalizing it. What do you notice about the dimensions?
+```{r, echo=TRUE, tidy=FALSE, mysize=TRUE, size='\\footnotesize'}
+for (i in 1:dim(words.lsa)[1]) {
+  top.words <- sort(words.lsa[i,], decreasing=T)[1:5]
+  print(paste(c("Dimension: ",i), collapse=" "))
+  print(top.words)
+}
+```
+
+# Latent semantic analysis
+## Limitations of Latent Semantic Analysis
+- Bag-of-words assumptions and document-level word associations
+  - We still treat words as belonging to documents and lack finer context about their relationships
+    - Although we could theoretically treat smaller units like sentences as documents
+- Matrix computations become intractable with large corpora
+- A neat linear algebra trick, but no underlying *language model*
+
+# Language models
+## Intuition
+- A language model is a probabilistic model of language use
+- Given some string of tokens, what is the most likely token?
+  - Examples
+    - Auto-complete
+    - Google search completion
+
+# Language models
+## Bigram models
+- $P(w_i|w_{i-1})$ = What is the probability of word $w_i$ given the last word, $w_{i-1}$?
+   - $P(Jersey|New)$
+   - $P(Brunswick|New)$
+   - $P(York|New)$
+   - $P(Sociology|New)$
+
+# Language models
+## Bigram models
+- We use a corpus of text to calculate these probabilities from word co-occurrence.
+    - $P(Jersey|New) = \frac{C(New\ Jersey)}{C(New)}$, e.g. proportion of times "New" is followed by "Jersey", where $C()$ is the count operator.
+- More frequently occurring pairs will have a higher probability.
+  - We might expect that $P(York|New) \approx P(Jersey|New) > P(Brunswick|New) >> P(Sociology|New)$
+
+# Language models
+## Incorporating more information
+- We can also model the probability of a word, given a sequence of words
+- $P(x|S)$ = What is the probability of some word $x$ given a partial sentence $S$?
+ - $A = P(Jersey|Rutgers\ University\ is\ in\ New)$
+ - $B = P(Brunswick|Rutgers\ University\ is\ in\ New)$
+ - $C = P(York|Rutgers\ University\ is\ in\ New)$
+- In this case we have more information, so "York" is less likely to be the next word. Hence,
+  - $A \approx B > C$.
+  
+# Language models
+## Estimation
+We can compute the probability of an entire sequence of words by using considering the joint conditional probabilities of each pair of words in the sequence. For a sequence of $n$ words, we want to know the joint probability of $P(w_1, w_2,w_3,...,w_n)$. We can simplify this using the chain rule of probability:
+
+$$P(w_{1:n}) = P(w_1)P(w_2|w_1)P(w_3|w_{1:2})...P(w_n|w_{1:n−1}) $$
+
+$$= \prod_{k=1}^n P(w_k|w_{1:k-1})$$
+
+# Language models
+## Estimation
+The bigram model simplifies this by assuming it is a first-order Markov process, such that the probability $w_k$ only depends on the previous word, $w_{k-1}$.
+
+$$P(w_{1:n}) \approx \prod_{k=1}^n P(w_k|w_{k-1})$$
+
+These probabilities can be estimated by using Maximum Likelihood Estimation on a corpus.
+
+\tiny See https://web.stanford.edu/~jurafsky/slp3/3.pdf for an excellent review of language models
+
+# Language models
+## Empirical applications
+- Danescu-Niculescu-Mizil et al. 2013 construct a bigram language model for each month on *BeerAdvocate* and *RateBeer* to capture the language of the community
+  - For any given comment or user, they can then use a measure called *cross-entropy* to calculate how "surprising" the text is, given the assumptions about the language model
+- The theory is that new users will take time to assimilate into the linguistic norms of the community
+  
+\tiny https://en.wikipedia.org/wiki/Cross_entropy
+  
+# Language models
+## Empirical applications
+```{r, out.width="70%",out.height="70%", fig.align="center"}
+include_graphics('../images/language_model_example.png') # cross-entropy figure
+```  
+\tiny Danescu-Niculescu-Mizil, Cristian, Robert West, Dan Jurafsky, Jure Leskovec, and Christopher Potts. 2013. “No Country for Old Members: User Lifecycle and Linguistic Change in Online Communities.” In Proceedings of the 22nd International Conference on World Wide Web, 307–18. ACM. http://dl.acm.org/citation.cfm?id=2488416.
+
+# Language models
+## Limitations of N-gram language models
+- Language use is much more complex than N-gram language models
+- Two limitations
+  - Insufficient data
+  - Complex models become intractable to compute
+- Next lecture we will see how advances in neural network models and the availability of large text corpora have opened up new avenues for language modeling and semantic analysis
+
+# Summary
+- Limitations of sparse representations of text
+  - LSA allows us to project sparse matrix into a dense, low-dimensional representation
+- Probabilistic language models allow us to directly model language use
+- Next lecture: How neural language models allow us to create more meaningful semantic representations of texts
