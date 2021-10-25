@@ -37,5 +37,5 @@ Getting 2000 most recent statuses for NYTimes and WSJ.
 tl <- get_timeline(c("nytimes", "wsj"), n = 2000)
 ### Your code here
 tl$status_id <- as.character(tl$status_id) # Convert IDs to string
-write_tsv(tl, "slides/data/nytimes_wsj_2000_statuses_oct2521.tsv")
+write_csv(tl, "../slides/data/nytimes_wsj_2000_statuses_oct2521.csv")
 ```
