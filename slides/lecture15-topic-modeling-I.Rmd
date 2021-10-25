@@ -1,0 +1,346 @@
+---
+title: "Social Data Science" 
+subtitle: "Topic Modeling"
+author: Dr. Thomas Davidson
+institute: Rutgers University
+date: October 25, 2021
+output:
+    beamer_presentation:
+      theme: "Szeged"
+      colortheme: "beaver"
+      fonttheme: "structurebold"
+      toc: false
+      incremental: false
+header-includes:
+  - \usepackage{multicol}
+  - \usepackage{caption}
+  - \usepackage{hyperref}
+  - \captionsetup[figure]{font=scriptsize}
+  - \captionsetup[figure]{labelformat=empty}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(dev = 'pdf')
+library("knitr")
+library("formatR")
+
+opts_chunk$set(tidy.opts=list(width.cutoff=80),tidy=TRUE)
+opts_chunk$set(tidy = FALSE)
+
+knitr::knit_hooks$set(mysize = function(before, options, envir) {
+  if (before) 
+    return(options$size)
+})
+```
+
+# Plan
+1. Course updates
+2. Introduction to topic modeling
+3. Latent Dirichlet Allocation (LDA)
+
+<!--Note: This lecture does not render to PDF due to errors when compiling. PDF only includes non-code slides-->
+
+# Course updates
+- Homework 2 grades and proposal feedback released this week
+- Final homework assignment released Friday, due 11/5
+  
+# Introduction to topic modeling
+## What is topic modeling?
+- A corpus of documents contains a set of latent "themes" or "topics"
+- A topic model is a probabilistic algorithm is designed to inductively create a "model" of these latent topics
+- This gives us an overview of the content of an entire corpus and the ability to characterize individual documents
+
+# Introduction to topic modeling
+## Topic modeling and sociology 
+- Topic modeling is a "lens" to allow reading of a corpus "in a different light and at a different scale" to traditional content analysis (Mohr and Bogdanov 2013).
+  - Often we want to conduct an automated coding of a large corpus, but it can also be helpful for a "close reading" of a smaller corpus
+  
+# Introduction to topic modeling
+## Relationship to content analysis 
+- Content analysis is a methodology developed by social scientists to understand themes in written documents
+- It involves reading a subset of documents and developing a set of themes or categories, then identify where these occur in the rest of the corpus
+- In contrast to this approach, the interpretative phase of LDA occurs after we have trained a model
+  - Topic modeling identifies potentially meaningful topics that we must then analyze
+
+# Introduction to topic modeling
+## An inductive and relational approach
+- Topic modeling is "an inductive relational approach to the study of culture"
+  - It is *inductive* because the topics are "discovered" from the text
+  - It is *relational* because meaning emerges out of relationships between words
+  
+\tiny DiMaggio, P., Nag, M., & Blei, D. (2013). Exploiting affinities between topic modeling and the sociological perspective on culture: Application to newspaper coverage of U.S. government arts funding. Poetics, 41(6), 570–606. https://doi.org/10.1016/j.poetic.2013.08.004
+
+
+# Latent Dirichlet Allocation
+## Terminology
+- We observe the documents but the topics are **latent**
+- The model uses a probability distribution called the **Dirichlet** distribution
+- Using this model we **allocate** words to topics
+
+# Latent Dirichlet Allocation
+## Intuition
+- A **topic** is a distribution over a vocabulary
+  - Each word in the vocabulary has a probability of belonging to the topic
+- Let's say we train an LDA on a newspaper corpus
+  - We find a topic that seems to capture information about *sports*
+    - The words "football" and "goal" have a high probability 
+    - The words "literary" and "helicopter" have a low probability
+  - This topic can be represented as a distribution over all words in the vocabulary
+    - $Topic\ distribution_k = [ football : 0.34, goal : 0.23, ..., literary : 0.0001, helicopter: 0.0002, ...]$
+
+# Latent Dirichlet Allocation
+## Intuition
+- A **document** is a distribution over topics
+  - *All* documents contain *all* topics, but in different proportions
+- Let's say we take an article about a new player a football team hired and look at the topics based on the newspaper model
+  - The highest probability topic might be *sports*, but the article also disusses contract and the position of the player in the labor market
+    - Thus the document may also contain the topics *finance* and *labor*.
+  - The article is irrelevant to other issues in discussed in newspapers, so has a low probability of containing the topic *national security* or *arts*.
+  - $Topic\ proportions_d = [ sports : 0.63, finance : 0.25, labor : 0.12, ..., national\ security : 0.001, arts: 0.002, ...]$
+  
+# Latent Dirichlet Allocation
+```{r, out.width="70%",out.height="70%", fig.align="center"}
+include_graphics('../images/blei_genetic.png')
+``` 
+\tiny Blei, David M. 2012. “Probabilistic Topic Models.” Communications of the ACM 55 (4): 77. https://doi.org/10.1145/2133806.2133826.
+
+# Latent Dirichlet Allocation
+```{r, out.width="70%",out.height="60%", fig.align="center"}
+include_graphics('../images/blei_topics.png')
+``` 
+\tiny Blei, David M. 2012. “Probabilistic Topic Models.” Communications of the ACM 55 (4): 77. https://doi.org/10.1145/2133806.2133826.
+
+# Latent Dirichlet Allocation
+## Intuition
+- Topic modeling is a *generative* process
+  - The goal is to create a plausible model that can mimic the hidden structure and *generate* the observed documents
+  - "The utility of topic models stems from the property that the inferred hidden structure resembles the thematic structure of the collection." Blei, 2012.
+
+
+# Latent Dirichlet Allocation
+## Mathematical formulation
+- There are four components that we need to compute the LDA over a corpus of documents
+  - Topics $\beta_{1:K}$, where $\beta_{k}$ is a distribution over the vocabulary
+  - Topic proportions $\theta_{1: D}$, where $\theta_{d,k}$ is proportion for topic $k$ in document $d$
+  - Topic assignments $z_{1: D}$, where $z_{d,n}$ is topic assignment of $n^{th}$ word in document $d$.
+  - Observed words $w_{1: D}$, where $w_{d,n}$ is the $n^{th}$ word in document $d$.
+  
+# Latent Dirichlet Allocation
+## Mathematical formulation
+- The relationship between these variables is expressed as a joint-distribution:
+$$
+\begin{array}{l}
+p\left(\beta_{1: K}, \theta_{1: D}, z_{1: D}, w_{1: D}\right) \\
+=\prod_{i=1}^{K} p\left(\beta_{i}\right) \prod_{d=1}^{D} p\left(\theta_{d}\right) \\
+\quad\left(\prod_{n=1}^{N} p\left(z_{d, n} \mid \theta_{d}\right) p\left(w_{d, n} \mid \beta_{1: K}, z_{d, n}\right)\right)
+\end{array}
+$$
+
+# Latent Dirichlet Allocation
+## Algorithm
+- We use this formula to compute the *posterior distribution* of the variables
+- This is a computationally-intensive process and requires some probabilistic short-cuts
+  - *Sampling-based* methods approximate the posterior distribution by random sampling 
+  - *Variational* methods find an approximation of the posterior distribution that fits well
+
+
+# Training an LDA topic model in R
+## Loading the corpus
+Loading a corpus of most recent 2000 tweets by the New York Times and the Wall Street Journal. 
+```{r,eval=FALSE, echo=TRUE, tidy=FALSE, mysize=TRUE, size='\\footnotesize'}
+library(tidyverse)
+data <- as_tibble(read_csv("data/nytimes_wsj_2000_statuses_oct2521.csv"))
+head(data)
+```
+
+# Latent Dirichlet Allocation
+## Preprocessing
+Removing hashtags, mentions and URLs using a regular expression. I initially left in hashtags and mentions but found that they tended to dominate some topics since different newspapers frequently used the same hashtags.
+```{r, eval=FALSE, echo=TRUE, tidy=FALSE, mysize=TRUE, size='\\footnotesize'}
+data <- data %>% 
+    mutate(text = gsub("#[A-Za-z0-9]+|@[A-Za-z0-9]", "", text)) %>%
+    mutate(text = gsub("(http[^ ]*)|(www.[^ ]*)", "", text))
+```
+
+# Latent Dirichlet Allocation
+## Preprocessing
+```{r, eval=FALSE,echo=TRUE, tidy=FALSE, mysize=TRUE, size='\\footnotesize'}
+library(tidytext)
+data(stop_words)
+word.counts <- data %>% unnest_tokens(word, text, strip_punct = TRUE) %>%
+  anti_join(stop_words) %>%
+  count(status_id, word)
+
+doc.freq <- word.counts %>% 
+  mutate(n = pmax(pmin(n, 1), 0)) %>%
+  group_by(word) %>%
+  summarize(df = sum(n))
+
+words <- left_join(word.counts, doc.freq)
+```
+
+
+# Latent Dirichlet Allocation
+## Constructing a DTM
+```{r, eval=FALSE,echo=TRUE, tidy=FALSE, mysize=TRUE, size='\\footnotesize'}
+DTM <- words %>% filter(df >= 5) %>%
+  cast_dtm(status_id, word, n)
+```
+
+# Latent Dirichlet Allocation
+## Training an LDA model using `topicmodels`
+We can pass the DTM to the `LDA` function to train a topic model with 40 topics.
+```{r, eval=FALSE, echo=TRUE, tidy=FALSE, mysize=TRUE, size='\\footnotesize'}
+library(topicmodels)
+news_model<- LDA(DTM, k=30, control = list(seed = 10980))
+```
+\tiny LDA analysis based on code from https://www.tidytextmining.com/topicmodeling.html and https://cbail.github.io/SICSS_Topic_Modeling.html.
+
+# Latent Dirichlet Allocation
+## Analyzing topics
+We can use the `tidy` function to pull the beta matrix from the model. Each row corresponds to the probability of word $w$ in topic $k$. In this case we can see the probabilities of the term "vaccine" in topics 1-5.
+```{r,eval=FALSE, echo=TRUE, mysize=TRUE, size='\\footnotesize'}
+topics <- tidy(news_model, matrix = "beta")
+topics %>% filter(term == "vaccine") %>% dplyr::select(topic, beta) 
+```
+
+# Latent Dirichlet Allocation
+## Analyzing topics
+```{r, eval=FALSE,echo=FALSE, tidy=FALSE, mysize=TRUE, size='\\footnotesize'}
+library(ggplot2)
+
+top_terms <- 
+  topics %>%
+  group_by(topic) %>%
+  top_n(10, beta) %>%
+  ungroup() %>%
+  arrange(topic, -beta)
+
+top_terms %>% filter(topic <= 9) %>% # Only first 12 topics
+  mutate(term = reorder(term, beta)) %>%
+  ggplot(aes(term, beta, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  coord_flip() + labs(y="Beta", x="Term", caption="Top 10 highest words for each topic")
+```
+# Latent Dirichlet Allocation
+## Analyzing topics
+```{r, eval=FALSE,echo=FALSE, tidy=FALSE, mysize=TRUE, size='\\footnotesize'}
+top_terms %>% filter(topic > 9 & topic < 19) %>% # Only first 12 topics
+  mutate(term = reorder(term, beta)) %>%
+  ggplot(aes(term, beta, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  coord_flip() + labs(y="Beta", x="Term", caption="Top 10 highest words for each topic")
+```
+
+# Latent Dirichlet Allocation
+## Analyzing topics
+```{r, eval=FALSE,echo=FALSE, tidy=FALSE, mysize=TRUE, size='\\footnotesize'}
+top_terms %>% filter(topic >= 19) %>% # Only first 12 topics
+  mutate(term = reorder(term, beta)) %>%
+  ggplot(aes(term, beta, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  coord_flip() + labs(y="Beta", x="Term", caption="Top 10 highest words for each topic")
+```
+
+# Latent Dirichlet Allocation
+## Analyzing documents
+We can extract the document-topic proportions. Each row corresponds to the proportion of topic $i$ in document $j$.
+```{r, eval=FALSE,echo=FALSE, mysize=TRUE, size='\\footnotesize'}
+documents <- broom::tidy(news_model, matrix = "gamma")
+head(documents)
+```
+\tiny Note the notation change. This matrix is called *gamma* ($\gamma$) here but was referenced as *theta* ($\theta$) in the equation above. Unfortunately this kind of thing happens a lot as notation is used inconsistently.
+
+# Latent Dirichlet Allocation
+## Helper functions
+```{r, eval=FALSE,echo=FALSE, tidy=FALSE, mysize=TRUE, size='\\footnotesize'}
+get_top_n_docs <- function(n=5, topic = 1) {
+    top.5.docs <- documents %>% arrange(desc(gamma)) %>% filter(topic == topic)
+    docs <- data %>% filter(status_id %in% top.5.docs$document) %>%
+      select(text) %>% head(n)
+    return(docs)
+}
+get_top_n_docs(n=10, topic = 1)
+
+get_top_n_words <- function(n=5, topic =1) {
+  result <- topics %>% filter(topic == topic) %>%
+  top_n(n, beta) %>% select(term)
+  return(result)
+}
+
+get_top_n_words(n=10, topic=4)
+```
+
+# Latent Dirichlet Allocation
+## Exercise
+- Modify the code above to look at top words and documents in each topic.
+- For each topic:
+  - What themes does this topic contain?
+  - Is the topic coherent?
+  - Can you name the topic?
+- Add your findings to the shared Google Sheet (requires Rutgers login): shorturl.at/hoJUV
+
+# Exercise code
+```{r, eval=FALSE,echo=FALSE, tidy=FALSE, mysize=TRUE, size='\\footnotesize'}
+# Use this block to run code for the exercise
+```
+
+# Latent Dirichlet Allocation
+## Interpreting the results
+"Producing an interpretable solution is the beginning, not the end, of an analysis. The solution
+constructs meaningful categories and generates corpus-level measures (e.g., the percentage of
+documents in which a given topic is highly represented) and document-level measures (e.g., the
+percentage of words in each document assigned to each topic) based on these categories. It
+remains for the analyst to use this information to address the analytic questions that motivated the
+research. The analyst must also validate the solution by demonstrating that the model is sound
+and that his or her interpretation is plausible" (DiMaggio et al. 2013: 586).
+
+# Latent Dirichlet Allocation
+## Validation
+- "there is no statistical test for the optimal number of topics or for the quality of a solution" (DiMaggio, Nag, and Blei 2013: 582)
+- They suggest three forms of validation
+  - *Statistical*: Calculating various measures of fit
+  - *Semantic*: Hand-coding / close reading of documents
+  - *Predictive*: Do events change the prevalence of topics?
+- Not all topics will be meaningful, some capture residual "junk" and can be ignored (Karell and Freedman 2019)
+
+# Latent Dirichlet Allocation
+## How does it differ from NLP approaches covered so far?
+- Document representation
+  -  A document is represented as a probability distribution over topics, not just a bag-of-words or an embedding
+    - Closest approach is *latent semantic analysis*, where a document is a set of weights over latent dimensions. Indeed, LDA was developed as an extension of LSA.
+- Document retrieval
+  - We can select documents by topic content rather than keywords
+  - Words can be shared by multiple topics, unlike conventional keyword detection
+- Document comparisons
+  - We can compare documents based on topic content rather than text similarity
+
+# Latent Dirichlet Allocation
+## Extensions of LDA
+- LDA is considered the "vanilla" topic model. Subsequent approaches have relaxed some of the assumptions of LDA (Blei, 2012):
+  - *Assumption 1*: Documents are treated as bags-of-words
+    - Language models can be incorporated to better account for linguistic structure
+  - *Assumption 2*: Document order does not matter
+    - Dynamic topic models account for how topics can change over time
+  - *Assumption 3*: The number of topics, $K$, is known
+    - Bayesian non-parametric topic models discover $K$ during the inference procedure
+- *Structural topic modeling* (STM) has recently become a popular extension of LDA, we will focus on this next lecture
+
+
+# Summary
+- Topic modeling is an inductive approach for the summary of large text corpora
+  - Analysis of topic models involves the interpretation of topics
+  - A key challenge is selecting an appropriate number of topics
+- LDA algorithm summarizes as corpus into $k$ topics
+  - Each document is composed of a mixture of topics
+  - Each topic is a mixture of words
+- These topics often capture important information about the meaning of document
+
+
+
