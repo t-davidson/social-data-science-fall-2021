@@ -1,0 +1,297 @@
+---
+title: "Social Data Science" 
+subtitle: "Supervised Machine Learning"
+author: Dr. Thomas Davidson
+institute: Rutgers University
+date: November 3, 2021
+output:
+    beamer_presentation:
+      theme: "Szeged"
+      colortheme: "beaver"
+      fonttheme: "structurebold"
+      toc: false
+      incremental: false
+header-includes:
+  - \usepackage{multicol}
+  - \usepackage{caption}
+  - \usepackage{hyperref}
+  - \captionsetup[figure]{font=scriptsize}
+  - \captionsetup[figure]{labelformat=empty}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(dev = 'pdf')
+library("knitr")
+library("formatR")
+
+opts_chunk$set(tidy.opts=list(width.cutoff=80),tidy=TRUE)
+opts_chunk$set(tidy = FALSE)
+
+knitr::knit_hooks$set(mysize = function(before, options, envir) {
+  if (before) 
+    return(options$size)
+})
+```
+
+# Plan
+1. Course updates
+2. Classification algorithms
+3. Intro to machine learning in R
+
+
+# Course updates
+## Homework 3
+- Homework 3 due Monday at 8pm
+- Project Prototype due Friday at 5pm
+  - Requirements:
+    - Link to a working ShinyApp on shinyapps.io
+    - Link to a Github repository containing code for the app
+  
+# Recap
+- Supervised learning, unsupervised learning, and statistical inference
+  - Supervised learning optimizes for predictive accuracy (focus on $\hat{Y}$ not $\hat{\beta}$)
+- Over and underfitting
+  - Out-of-sample validation and cross-validation
+  - Regularization
+- Evaluation etrics
+  - Precision, recall, F1, ROC/AUC
+  
+# Recap
+- Given some outcome $Y$ and a matrix of features $X$, we want to find a function $Y=f(X)$ that best predicts the outcome
+
+# Recap
+```{r, out.width="70%",out.height="60%", fig.align="center"}
+include_graphics('../images/penguins.jpg')
+``` 
+
+# Recap
+## Predicting penguins
+- $Y = 1$ if the bird is a penguin, otherwise $Y = 0$
+- $X$ is a matrix including information on birds including their diet, wingspan, coloring, locations, etc.
+  - Some of the information will be useful (e.g. ability to fly) but other information will be less meaningful (e.g. coloring)
+- Goal is to find $f(X)$ to predict whether a given bird is a penguin
+- The quality of the prediction will depend on both the information contained in $X$ and the properties of the function $f()$.
+
+# Classification algorithms
+## Logistic regression
+- Logistic regression is a regression model for the prediction of binary outcomes
+- The model estimates the probability of an event ($Y=1$) given predictors $X$.
+- It uses a logistic function to ensure the output is a probability between 0 and 1.
+
+$$P(Y_i = 1|X_i) = \frac{1}{1 + e^{-\beta_0 + \beta_1 x + \epsilon}} $$
+
+- Multinomial logistic regression can be used if you have a multi-class outcome (more than two categories)
+  - e.g. A model predicting level of education.
+- A LASSO penalty can be used to regularize when many features are used.
+
+
+# Classification algorithms
+## Support Vector Machines
+```{r, out.width="70%",out.height="70%", fig.align="center"}
+include_graphics('../images/svm.png')
+``` 
+\tiny \centering Source: Wikipedia
+
+# Classification algorithms
+## Decision Trees
+```{r, out.width="70%",out.height="70%", fig.align="center"}
+include_graphics('../images/Decision_Tree.jpg')
+``` 
+\tiny \centering Source: Wikipedia. See this \href{http://www.r2d3.us/visual-intro-to-machine-learning-part-1/}{website} for an excellent visual introduction to decision trees.
+
+# Classification algorithms
+## Random Forests
+- Decision trees tend to overfit the training data
+- Solution: Regularize by "growing" lots of trees and average over them
+  - Using a procedure called *bootstrap aggregating*, or *"bagging"*, we can sample from our data and generate a *forest* consisting of many decision trees. - This is known as an *ensemble* method because it involves more than one model.
+  - The approach is effective because the algorithm randomly splits the data into leaf nodes based on different features, hence it is a *random* forest.
+  - The final classification is an average across the different decision trees.
+  
+# Classification algorithms
+## Random Forests
+```{r, out.width="70%",out.height="70%", fig.align="center"}
+include_graphics('../images/random_forest.png')
+``` 
+\tiny \centering Source: Wikipedia
+
+# Classification algorithms 
+## Neural networks
+```{r, out.width="70%",out.height="70%", fig.align="center"}
+include_graphics('../images/neural_net.png')
+``` 
+\tiny \centering Davidson 2019.
+
+# Classification algorithms 
+## Neural networks
+```{r, out.width="70%",out.height="50%", fig.align="center"}
+include_graphics('../images/imagenet_structure.png')
+``` 
+\tiny Krizhevsky, Alex, Ilya Sutskever, and Geoffrey E. Hinton. 2012. “Imagenet Classification with Deep Convolutional Neural Networks.” In Advances in Neural Information Processing Systems, 1097–1105.
+
+# Classification algorithms
+## Hyperparameters
+- Each algorithm has hyperparameters that can adjust how it works.
+  - e.g. Regularization type for logistic regression and SVM.
+  - e.g. Number of trees, tree depth, and splitting criterion for random forest.
+  - e.g. Number of layers, activation function, and optimization routine for neural networks.
+- Often we conduct a search over different hyperparameters and compare many different models
+  - This could also include different transformations of the feature matrix $X$
+- But this can get very complex, very quickly!
+  
+# Classification algorithms
+## Hyperparameter search and computational complexity.
+- Davidson (2019) uses neural network models to predict high school GPA.
+  - Three model hyperparameters with 40 different combinations
+    - Number of hidden layers (depth)
+    - Number of neurons per hidden layer (width)
+    - Activation function ($f(X)$)
+  - Each model is trained using 5-fold cross-validation, resulting in 200 different model fits
+- These models took over 12 hours to estimate when run concurrently on a laptop
+
+\tiny Python code and output is available \href{https://github.com/t-davidson/fragile-families-challenge/blob/master/model/gpa.ipynb}{here}.
+
+# Classification algorithms
+## Black-box models and interpretability
+- In contrast to standard explanatory models, which are considered to be interpretable, many of these algorithms are described as "black boxes," meaning that we are unable to observe their workings.
+- There is a trade-off between model complexity (often associated with better predictions) and human interpretability
+  - Watts (2014) argues that it may be worth sacrificing some interpretability in the interest of better predictions.
+- But there are lots of developments in the field of ML interpretability
+  - See Chrisoph Molar's open-source book \href{https://christophm.github.io/interpretable-ml-book/}{*Interpretable Machine Learning} for an overview.
+  
+# Classification algorithms
+## Black-box models
+```{r, out.width="75%",out.height="60%", fig.align="center"}
+include_graphics('../images/lime_dog.png')
+``` 
+\tiny \centering  Ribeiro, Marco Tulio, Sameer Singh, and Carlos Guestrin. 2016. “‘Why Should I Trust You?’: Explaining the Predictions of Any Classifier.” In Proceedings of the 22nd ACM SIGKDD, 1135–44. ACM. https://doi.org/10.1145/2939672.2939778.
+
+
+# Classification algorithms
+## Black-box models
+```{r, out.width="80%",out.height="60%", fig.align="center"}
+include_graphics('../images/davidson_lime.png')
+```
+\tiny \centering Davidson 2019.
+
+# Machine learning in R
+## Tidymodels
+- `tidymodels` is a set of packages designed to use tidy principles to conduct machine-learning.
+  - See https://www.tidymodels.org/packages/ for a list of packages.
+```{r, out.width="50%",out.height="35%", fig.align="center"}
+include_graphics('../images/tidymodels.png')
+```
+\tiny \centering Source: \href{https://rviews.rstudio.com/2019/06/19/a-gentle-intro-to-tidymodels/}{tidymodels tutorial.}
+
+# Machine learning in R
+## Loading `tidymodels`
+The `tidymodels` package loads all of the sub-packages, as well as the `tidyverse` packages. We're going to be using the `iris` dataset for today's analysis. This is a simple dataset containing data on 150 irises. There are three species, "setosa", "versicolor", and "viriginica" and four variables `sepal.Length`, `sepal.Width`, `Petal.Length`, and `Petal.Width`. The goal is to predict the species given the sepal and petal information.
+```{r, echo=TRUE, tidy=FALSE, mysize=TRUE, size='\\footnotesize'}
+library(tidymodels)
+head(iris)
+```
+
+# Machine learning in R
+## Loading and splitting data
+We can use the `initial_split` command to create a train-test split, where 20% of the data are held-out for testing.
+```{r, echo=TRUE, tidy=FALSE, mysize=TRUE, size='\\footnotesize'}
+set.seed(12345)
+iris_split <- initial_split(iris, prop = 0.8)
+print(iris_split)
+```
+
+# Machine learning in R
+## Viewing the data
+```{r, echo=TRUE, tidy=FALSE, mysize=TRUE, size='\\footnotesize'}
+iris_split %>% training() %>% head()
+```
+
+
+# Machine learning in R
+## Pre-processing
+We will use the `recipes` package to pre-process the data.
+```{r, echo=TRUE, tidy=FALSE, mysize=TRUE, size='\\footnotesize'}
+iris_recipe <- training(iris_split) %>%
+  recipe(Species ~.) %>%
+  step_corr(all_predictors()) %>%
+  step_center(all_predictors(), -all_outcomes()) %>%
+  step_scale(all_predictors(), -all_outcomes()) %>%
+  prep()
+
+iris_recipe # Note petal length removed due to correlation
+```
+
+# Machine learning in R
+## Pre-processing the test data
+The previous chunk only applied these transformations to the training data. We want to also modify the test data so that they are the same dimensions. We can apply the `recipe` to the new data using the `bake` command. We also want to load the training data into a variable using the `juice` command. This extracts the data directly from the recipe.
+```{r, echo=TRUE, tidy=FALSE, mysize=TRUE, size='\\footnotesize'}
+iris_testing <- iris_recipe %>% 
+  bake(testing(iris_split))
+
+iris_training <- juice(iris_recipe)
+```
+
+# Machine learning in R
+## Specifying a model
+The `parsnip` command allows us to specify a model. ML models in R exist across a range of different packages and `parsnip` gives them a standardized syntax. We define the model, choose the package (in this case `randomForest`), then use `fit` to train the model.
+```{r, echo=TRUE, tidy=FALSE, mysize=TRUE, size='\\footnotesize'}
+library(randomForest)
+rf <-  rand_forest(trees = 1000, mode = "classification") %>%
+  set_engine("randomForest") %>%
+  fit(Species ~ ., data = iris_training)
+```
+
+# Machine learning in R
+## Making predictions
+```{r, echo=TRUE, tidy=FALSE, mysize=TRUE, size='\\footnotesize'}
+preds <- predict(rf, iris_testing)
+bind_cols(iris_testing, preds)
+```
+
+# Machine learning in R
+## Calculating metrics
+```{r, echo=TRUE, tidy=FALSE, mysize=TRUE, size='\\footnotesize'}
+precision <- bind_cols(iris_testing, preds) %>% precision(truth=Species, estimate = .pred_class)
+recall <- bind_cols(iris_testing, preds) %>% recall(truth=Species, estimate = .pred_class)
+print(bind_rows(precision, recall))
+```
+# Machine learning in R
+## Calculating metrics
+We can also extract the predicted probabilities by adding an argument to the `predict` function.
+```{r, echo=TRUE, tidy=FALSE, mysize=TRUE, size='\\footnotesize'}
+probs <- rf %>%
+  predict(iris_testing, type = "prob") %>%
+  bind_cols(iris_testing)
+head(probs)
+```
+
+# Machine learning in R
+## Calculating metrics
+```{r, echo=TRUE, tidy=FALSE, mysize=TRUE, size='\\footnotesize'}
+probs %>% roc_curve(Species, .pred_setosa:.pred_virginica ) %>% autoplot()
+```
+
+# Machine learning in R
+## Calculating metrics
+```{r, echo=TRUE, tidy=FALSE, mysize=TRUE, size='\\footnotesize'}
+probs %>% roc_auc(Species, .pred_setosa:.pred_virginica )
+```
+
+# Machine learning in R
+## Next week
+- We will go into more depth using `tidymodels` to implement cross-validation and a hyperparameter search and will evaluate multiple different models
+- Supervised machine learning to perform text classification
+- Considering how the inputs and label quality affect classifier performance
+
+# Machine learning in R
+## Alternatives
+- Python has a more developed ML ecosystem than R.
+  - `scikit-learn` provides a suite of tools for most machine-learning tasks except deep-learning, which requires specialized libraries.
+```{r, out.width="45%",out.height="40%", fig.align="center"}
+include_graphics('../images/scikit.png')
+```
+\tiny \centering Source: \href{https://scikit-learn.org/stable/tutorial/machine_learning_map/index.html}{scikit-learn documentation}. See this \href{https://www.r-bloggers.com/2020/04/how-to-run-pythons-scikit-learn-in-r-in-5-minutes/}{tutorial} for how to run `scikit-learn` using R.
+
+
