@@ -1,5 +1,5 @@
 ---
-title: "Computational Sociology" 
+title: "Social Data Science" 
 subtitle: "Supervised Text Classification"
 author: Dr. Thomas Davidson
 institute: Rutgers University
