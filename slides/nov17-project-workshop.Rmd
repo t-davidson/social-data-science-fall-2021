@@ -1,0 +1,212 @@
+---
+title: "Social Data Science" 
+subtitle: "Project Workshop"
+author: Dr. Thomas Davidson
+institute: Rutgers University
+date: November 17, 2021
+output:
+    beamer_presentation:
+      theme: "Szeged"
+      colortheme: "beaver"
+      fonttheme: "structurebold"
+      toc: false
+      incremental: false
+urlcolor: "blue"
+header-includes:
+  - \usepackage{multicol}
+  - \usepackage{caption}
+  - \usepackage{hyperref}
+  - \captionsetup[figure]{font=scriptsize}
+  - \captionsetup[figure]{labelformat=empty}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(dev = 'pdf')
+library("knitr")
+library("formatR")
+
+opts_chunk$set(tidy.opts=list(width.cutoff=80),tidy=TRUE)
+opts_chunk$set(tidy = FALSE)
+
+knitr::knit_hooks$set(mysize = function(before, options, envir) {
+  if (before) 
+    return(options$size)
+})
+```
+
+# Plan
+1. Course updates
+2. Timeline
+3. Project updates
+
+# Course updates
+- Project prototypes due Friday at 5pm
+    - Submit on Canvas (coming soon)
+        - Link to working app on shinyapps.io
+        - Link to Github repository
+
+# Final projects
+## Milestones
+- Prototype (due 11/19)
+  - A simple working prototype of your app
+- Presentation (12/6 & 12/8), ~3 weeks
+  - A chance to present your app and get feedback
+- Finished app and deliverables submitted (12/16), ~1 month
+
+# Project updates
+## Discussion
+- What is your project?
+- How have you made progress on the project?
+
+# Project updates
+## Challenges
+- What challenges have you faced?
+    - Data collection, cleaning, analysis, visualization, deployment
+
+<!-- These slides are from the earlier presentation-->
+# Final projects
+## Goals
+- Build an interactive data visualization app, focused on a topic of social scientific interest
+- Your chance to showcase skills and knowledge developed in this class
+- Add to your portfolio or resume
+
+# Final projects
+## Five steps
+- Data collection
+- Data cleaning
+- Data analysis
+- Data visualization
+- Building and deploying an app
+
+# Final projects
+## Data collection
+- Collect a dataset
+  - Data of interest to social scientists
+  - Data sources:
+    - APIs
+    - Webscraping
+    - Existing datasets (e.g. General Social Survey, American National Election Study)
+
+# Final projects
+## Data cleaning
+- Process dataset to extract relevant data
+  - String pre-processing (more next week)
+  - Parsing HTML
+  - Merging datasets
+  - Selecting, grouping, mutating, etc.
+  
+# Final projects
+## Data analysis
+- Conduct an analysis of the dataset
+  - Descriptive statistics (mean, median, mode, etc.)
+  - Statistical tests (correlation, t-test, chi-squared, etc.)
+  - Statistical modeling (regression, machine learning, topic modeling, etc.)
+- Depending on the type of analysis, there may specific resources for using Shiny to show results
+
+# Final projects
+## Data visualization
+- Construct visualizations of the dataset
+  - Relationships between variables
+  - Trends over time
+  - Maps
+  - Animations
+- Must have an interactive component
+
+# Final projects
+## Building and deploying an app
+- Use R Shiny to build an interactive app
+- Deploy the app on the web using Shinyapps.io
+
+# Final projects
+## Final deliverables
+- A deployed Shiny app for interactive data visualization
+- An organized Github repository for the project
+  - Including a README with documentation
+- A short written description of the work
+
+
+# Final projects
+## Feedback
+- There will be several opportunities for formal and informal feedback
+- Informal
+  - Office hours
+    - Discuss before submitting proposals
+  - Discussions with classmates
+- Formal
+  - Written feedback on proposal and prototype
+  - Presentation
+  
+# Final projects
+```{r, out.width="70%",out.height="70%", fig.align="center"}
+include_graphics('../images/agile_workflow.png')
+```
+
+
+# Developing Shiny applications in R
+## What is Shiny?
+- Shiny is a package you can use to build interactive web pages directly from R
+  - It does not require any experience with HTML, CSS, or Javascript, etc.
+- Apps can be hosted on standalone webpages, enabling anyone to access them
+- Many extensions available, making Shiny a powerful tool for data visualization and construction of dashboards.
+
+# Developing Shiny applications in R
+## Example 1: Explore your weather
+- A \href{https://connect.rstudioservices.com/explore_your_weatherJ}{simple app} to show trends in temperature and precipitation using data from NOAA
+
+# Developing Shiny applications in R
+## Example 1: Explore your weather
+- This app visualizes an existing dataset containing information about average temperatures in a given location
+- Features
+  - Two different plots show temperature and precipitation
+  - The user interface contains a search bar, return button, and a random city button
+  - Options to change light/dark mode
+  - Links to original data and code on Github
+
+# Developing Shiny applications in R
+## Example 2: Bloodbanks in India
+- \href{https://opndt.shinyapps.io/bloodbank_india/}{This app} maps bloodbanks in India using data from the Open Government Platform
+- Interactive, clickable map
+- Tabs to show raw data and provide further details
+
+# Developing Shiny applications in R
+## More examples
+- There are many more examples in the \href{https://shiny.rstudio.com/gallery/}{Gallery} on the Shiny website.
+
+# Developing Shiny applications in R
+## Extensions
+- There are many extensions of the Shiny framework
+  - \href{https://d3js.org/}{D3} for data-driven visualization. See \href{https://rstudio.github.io/r2d3/articles/shiny.html}{`r2d3` website}
+  - \href{https://rstudio.github.io/leaflet/shiny.html}{Leaflet for interactive mapping}
+  - \href{https://plotly-r.com/}{Plotly for interactive plots}
+  - \href{https://github.com/cschwem2er/stminsights}{STMinsights} for exploring structural topic models (Week 9)
+- \href{https://github.com/nanxstats/awesome-shiny-extensions}{This Github page} lists a ton of Shiny resources.
+
+# Developing Shiny applications in R
+## Further readings
+- RStudio's \href{https://raw.githubusercontent.com/rstudio/cheatsheets/master/shiny.pdf}{Shiny cheatsheet} is a really useful quick reference.
+- *\href{https://mastering-shiny.org/index.html}{Mastering Shiny}* by Hadley Wickham is available for free online.
+- RStudio has a two and a half hour long \href{https://shiny.rstudio.com/tutorial/}{video tutorial}, along with a set of short online tutorials
+- Lots of videos on YouTube
+
+# Developing Shiny applications in R
+## Deployment
+- Apps can be deployed for free using the \href{https://www.shinyapps.io/}{Shiny Apps website}.* You just need to do the following:
+  - Sign up (you can use Github account)
+  - Get credentials (key and secret)
+  - Authorize credentials
+  - Package app in appropriate format
+  - Deploy
+
+* Free accounts are limited to 5 apps and 25 active hours a month. You will need to ensure you do not exceed these limits.
+
+# Developing Shiny applications in R
+## Information on example files
+- `app.R` is an example of simple Shiny app to interactively plot correlations, along with other descriptive statistics
+- `app2.R` modifies the previous app to use the `shinydashboards` framework
+- `/app` is a directory containing two files, `ui.R` and `server.R` (the components of `app.R`)
+  - `test.R` uses the files in `/app` to launch a local version of the app
+  - `app_deploy_template.R` can be run to deploy the app to shinyapps.io.
+    - You must add credentials and other information to this template before running it.
